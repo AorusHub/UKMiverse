@@ -1,0 +1,6 @@
+Flask
+Flask-RESTX
+Flask-JWT-Extended
+Flask-Cors
+Flask-SQLAlchemy
+Werkzeug

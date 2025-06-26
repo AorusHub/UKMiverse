@@ -1,0 +1,452 @@
+.about {
+  min-height: 100vh;
+  width: 100%;
+  overflow-x: hidden;
+}
+
+.about-section {
+  background: linear-gradient(135deg, #C8B5E8 0%, #E8C5E8 100%);
+  min-height: 100vh;
+  padding: 4rem 0;
+  display: flex;
+  align-items: center;
+}
+
+.about-title {
+  text-align: center;
+  font-size: 3.5rem;
+  font-weight: bold;
+  color: #8B5CF6;
+  margin-bottom: 4rem;
+  letter-spacing: 2px;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.about-content {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4rem;
+  align-items: center;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.about-left {
+  padding-right: 2rem;
+}
+
+.ukmiverse-title {
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 1.5rem;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.ukmiverse-description {
+  font-size: 1.1rem;
+  line-height: 1.7;
+  color: #333;
+  margin-bottom: 2rem;
+  text-align: justify;
+}
+
+.mission-card,
+.vision-card {
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 20px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+.mission-icon,
+.vision-icon {
+  flex-shrink: 0;
+  width: 60px;
+  height: 60px;
+  background: linear-gradient(135deg, #8B5CF6 0%, #EC4899 100%);
+  border-radius: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+}
+
+.star-icon,
+.gear-icon {
+  color: white;
+  font-size: 1.8rem;
+}
+
+.mission-text,
+.vision-text {
+  flex: 1;
+  font-size: 1rem;
+  line-height: 1.6;
+  color: #333;
+  margin: 0;
+  text-align: justify;
+}
+
+.about-right {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.illustration {
+  position: relative;
+  width: 100%;
+  height: 400px;
+  margin-bottom: 2rem;
+}
+
+.floating-elements {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+}
+
+.element {
+  position: absolute;
+  font-size: 2rem;
+  animation: float 3s ease-in-out infinite;
+}
+
+.element-1 { top: 10%; left: 10%; animation-delay: 0s; }
+.element-2 { top: 20%; right: 15%; animation-delay: 0.5s; }
+.element-3 { top: 60%; left: 5%; animation-delay: 1s; }
+.element-4 { bottom: 30%; right: 10%; animation-delay: 1.5s; }
+.element-5 { top: 40%; left: 15%; animation-delay: 2s; }
+.element-6 { bottom: 10%; left: 20%; animation-delay: 2.5s; }
+.element-7 { top: 70%; right: 25%; animation-delay: 3s; }
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+
+.main-illustration {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.character {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 3rem;
+  animation: bounce 2s ease-in-out infinite;
+}
+
+.character-green {
+  background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+  animation-delay: 0s;
+}
+
+.character-yellow {
+  background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+  animation-delay: 0.5s;
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-15px); }
+}
+
+.browser-window {
+  background: white;
+  border-radius: 12px;
+  width: 200px;
+  height: 120px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+  margin-left: 1rem;
+}
+
+.browser-header {
+  background: #f3f4f6;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  padding: 0 10px;
+}
+
+.browser-dots {
+  display: flex;
+  gap: 5px;
+}
+
+.browser-dots span {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #d1d5db;
+}
+
+.browser-dots span:first-child { background: #ef4444; }
+.browser-dots span:nth-child(2) { background: #f59e0b; }
+.browser-dots span:last-child { background: #10b981; }
+
+.browser-content {
+  padding: 15px;
+}
+
+.content-lines {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.line {
+  height: 8px;
+  background: #e5e7eb;
+  border-radius: 4px;
+}
+
+.line.short {
+  width: 60%;
+}
+
+.cta-bottom {
+  text-align: center;
+  background: rgba(255, 255, 255, 0.9);
+  padding: 1.5rem 2rem;
+  border-radius: 20px;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+.cta-bottom h3 {
+  font-size: 1.5rem;
+  color: #8B5CF6;
+  margin: 0;
+  font-weight: 600;
+}
+
+.container {
+  max-width: 100%;
+  width: 100%;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+@media (min-width: 1200px) {
+  .container {
+    max-width: 1200px;
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .about-content {
+    grid-template-columns: 1fr;
+    gap: 3rem;
+  }
+  
+  .about-left {
+    padding-right: 0;
+    text-align: center;
+  }
+  
+  .about-title {
+    font-size: 3rem;
+  }
+  
+  .ukmiverse-title {
+    font-size: 2.2rem;
+  }
+  
+  .illustration {
+    height: 350px;
+  }
+}
+
+@media (max-width: 768px) {
+  .about-section {
+    padding: 3rem 0;
+  }
+  
+  .about-title {
+    font-size: 2.5rem;
+    margin-bottom: 3rem;
+  }
+  
+  .about-content {
+    gap: 2rem;
+  }
+  
+  .ukmiverse-title {
+    font-size: 2rem;
+  }
+  
+  .ukmiverse-description {
+    font-size: 1rem;
+    text-align: left;
+  }
+  
+  .mission-card,
+  .vision-card {
+    flex-direction: column;
+    text-align: center;
+    padding: 1.5rem 1rem;
+  }
+  
+  .mission-icon,
+  .vision-icon {
+    width: 50px;
+    height: 50px;
+    margin: 0 auto 1rem auto;
+  }
+  
+  .mission-text,
+  .vision-text {
+    text-align: center;
+    font-size: 0.95rem;
+  }
+  
+  .illustration {
+    height: 300px;
+  }
+  
+  .character {
+    width: 60px;
+    height: 60px;
+    font-size: 2.5rem;
+  }
+  
+  .browser-window {
+    width: 150px;
+    height: 100px;
+  }
+  
+  .element {
+    font-size: 1.5rem;
+  }
+  
+  .cta-bottom h3 {
+    font-size: 1.3rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding: 0 1rem;
+  }
+  
+  .about-section {
+    padding: 2rem 0;
+  }
+  
+  .about-title {
+    font-size: 2rem;
+    margin-bottom: 2rem;
+  }
+  
+  .ukmiverse-title {
+    font-size: 1.8rem;
+  }
+  
+  .ukmiverse-description {
+    font-size: 0.95rem;
+  }
+  
+  .mission-card,
+  .vision-card {
+    padding: 1rem;
+  }
+  
+  .mission-icon,
+  .vision-icon {
+    width: 45px;
+    height: 45px;
+  }
+  
+  .mission-text,
+  .vision-text {
+    font-size: 0.9rem;
+  }
+  
+  .illustration {
+    height: 250px;
+  }
+  
+  .character {
+    width: 50px;
+    height: 50px;
+    font-size: 2rem;
+  }
+  
+  .browser-window {
+    width: 120px;
+    height: 80px;
+  }
+  
+  .browser-content {
+    padding: 10px;
+  }
+  
+  .line {
+    height: 6px;
+  }
+  
+  .element {
+    font-size: 1.2rem;
+  }
+  
+  .cta-bottom {
+    padding: 1rem 1.5rem;
+  }
+  
+  .cta-bottom h3 {
+    font-size: 1.1rem;
+  }
+}
+
+/* Extra small devices */
+@media (max-width: 375px) {
+  .about-title {
+    font-size: 1.8rem;
+  }
+  
+  .ukmiverse-title {
+    font-size: 1.6rem;
+  }
+  
+  .illustration {
+    height: 200px;
+  }
+  
+  .character {
+    width: 40px;
+    height: 40px;
+    font-size: 1.5rem;
+  }
+  
+  .browser-window {
+    width: 100px;
+    height: 70px;
+  }
+  
+  .element {
+    font-size: 1rem;
+  }
+}
