@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>UKM API Debug</title>
+</head>
+<body>
+    <h1>UKM API Debug</h1>
+    <button onclick="testUkmApi()">Test UKM API</button>
+    <button onclick="testCategoriesApi()">Test Categories API</button>
+    <div id="results"></div>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:5000/api';
+
+        async function testUkmApi() {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = '<h2>Testing UKM API...</h2>';
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/ukm/`);
+                console.log('UKM Response status:', response.status);
+                
+                if (!response.ok) {
+                    resultsDiv.innerHTML += `<p style="color: red;">❌ UKM API failed: ${response.status} ${response.statusText}</p>`;
+                    return;
+                }
+                
+                const ukmsData = await response.json();
+                console.log('UKM Data:', ukmsData);
+                
+                resultsDiv.innerHTML += `<h3>✅ UKM API Success</h3>`;
+                resultsDiv.innerHTML += `<p>Found ${ukmsData.length} UKMs</p>`;
+                
+                ukmsData.forEach((ukm, index) => {
+                    resultsDiv.innerHTML += `
+                        <div style="border: 1px solid #ccc; margin: 10px; padding: 10px;">
+                            <h4>UKM #${index + 1}: ${ukm.nama || ukm.name || 'No name'}</h4>
+                            <p><strong>ID:</strong> ${ukm.id}</p>
+                            <p><strong>Category ID:</strong> ${ukm.category_id} (type: ${typeof ukm.category_id})</p>
+                            <p><strong>Has category_id field:</strong> ${'category_id' in ukm}</p>
+                            <p><strong>Category object:</strong> ${JSON.stringify(ukm.category)}</p>
+                            <p><strong>All fields:</strong> ${Object.keys(ukm).join(', ')}</p>
+                        </div>
+                    `;
+                });
+                
+            } catch (error) {
+                console.error('UKM API Error:', error);
+                resultsDiv.innerHTML += `<p style="color: red;">❌ Error: ${error.message}</p>`;
+            }
+        }
+
+        async function testCategoriesApi() {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML += '<h2>Testing Categories API...</h2>';
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/ukm/categories`);
+                console.log('Categories Response status:', response.status);
+                
+                if (!response.ok) {
+                    resultsDiv.innerHTML += `<p style="color: red;">❌ Categories API failed: ${response.status} ${response.statusText}</p>`;
+                    return;
+                }
+                
+                const categoriesData = await response.json();
+                console.log('Categories Data:', categoriesData);
+                
+                resultsDiv.innerHTML += `<h3>✅ Categories API Success</h3>`;
+                resultsDiv.innerHTML += `<p>Found ${categoriesData.length} categories</p>`;
+                
+                categoriesData.forEach((cat, index) => {
+                    resultsDiv.innerHTML += `
+                        <div style="border: 1px solid #ccc; margin: 10px; padding: 10px; background: #f9f9f9;">
+                            <h4>Category #${index + 1}: ${cat.name}</h4>
+                            <p><strong>ID:</strong> ${cat.id} (type: ${typeof cat.id})</p>
+                            <p><strong>Description:</strong> ${cat.description}</p>
+                        </div>
+                    `;
+                });
+                
+            } catch (error) {
+                console.error('Categories API Error:', error);
+                resultsDiv.innerHTML += `<p style="color: red;">❌ Error: ${error.message}</p>`;
+            }
+        }
+    </script>
+</body>
+</html>

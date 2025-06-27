@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Avatar Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .test-container { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 8px; }
+        .avatar { width: 150px; height: 150px; border-radius: 50%; object-fit: cover; margin: 10px; }
+        .success { border-color: green; background: #f0fff0; }
+        .error { border-color: red; background: #fff0f0; }
+    </style>
+</head>
+<body>
+    <h1>🧪 Simple Avatar Loading Test</h1>
+    
+    <div class="test-container">
+        <h3>Test 1: Normal Loading (tanpa CORS/referrer)</h3>
+        <img id="avatar1" class="avatar" 
+             src="https://via.placeholder.com/150/9333ea/FFFFFF?text=TEST1"
+             alt="Avatar Test 1">
+        <p id="result1">Loading...</p>
+    </div>
+
+    <div class="test-container">
+        <h3>Test 2: Dengan crossOrigin="anonymous"</h3>
+        <img id="avatar2" class="avatar" 
+             src="https://via.placeholder.com/150/0066cc/FFFFFF?text=TEST2"
+             alt="Avatar Test 2"
+             crossOrigin="anonymous">
+        <p id="result2">Loading...</p>
+    </div>
+
+    <div class="test-container">
+        <h3>Test 3: Dengan referrerPolicy="no-referrer"</h3>
+        <img id="avatar3" class="avatar" 
+             src="https://via.placeholder.com/150/dc2626/FFFFFF?text=TEST3"
+             alt="Avatar Test 3"
+             referrerPolicy="no-referrer">
+        <p id="result3">Loading...</p>
+    </div>
+
+    <div class="test-container">
+        <h3>Test 4: Kombinasi crossOrigin + referrerPolicy (seperti di UKMiverse)</h3>
+        <img id="avatar4" class="avatar" 
+             src="https://via.placeholder.com/150/28a745/FFFFFF?text=TEST4"
+             alt="Avatar Test 4"
+             crossOrigin="anonymous"
+             referrerPolicy="no-referrer">
+        <p id="result4">Loading...</p>
+    </div>
+
+    <div class="test-container">
+        <h3>Test 5: URL yang mungkin bermasalah dengan CORS</h3>
+        <img id="avatar5" class="avatar" 
+             src="https://picsum.photos/150/150?random=1"
+             alt="Avatar Test 5"
+             crossOrigin="anonymous"
+             referrerPolicy="no-referrer">
+        <p id="result5">Loading...</p>
+    </div>
+
+    <script>
+        function setupTest(avatarId, resultId) {
+            const img = document.getElementById(avatarId);
+            const result = document.getElementById(resultId);
+            const container = result.parentElement;
+            
+            const startTime = Date.now();
+            
+            img.onload = () => {
+                const loadTime = Date.now() - startTime;
+                result.textContent = `✅ Loaded successfully in ${loadTime}ms`;
+                result.style.color = 'green';
+                container.classList.add('success');
+                console.log(`✅ ${avatarId} loaded:`, img.src);
+            };
+            
+            img.onerror = (e) => {
+                const loadTime = Date.now() - startTime;
+                result.textContent = `❌ Failed to load after ${loadTime}ms`;
+                result.style.color = 'red';
+                container.classList.add('error');
+                console.error(`❌ ${avatarId} failed:`, img.src, e);
+            };
+        }
+
+        // Setup all tests
+        for (let i = 1; i <= 5; i++) {
+            setupTest(`avatar${i}`, `result${i}`);
+        }
+
+        console.log('🧪 Avatar loading tests started');
+    </script>
+</body>
+</html>

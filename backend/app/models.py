@@ -109,6 +109,21 @@ class User(db.Model):
     email = db.Column(db.String(120), unique=True, nullable=False)
     password_hash = db.Column(db.String(255), nullable=False)
     full_name = db.Column(db.String(100), nullable=True)
+    
+    # Profile fields
+    bio = db.Column(db.Text, nullable=True)
+    phone = db.Column(db.String(20), nullable=True)
+    address = db.Column(db.Text, nullable=True)
+    date_of_birth = db.Column(db.Date, nullable=True)
+    gender = db.Column(db.String(10), nullable=True)  # male, female, other
+    student_id = db.Column(db.String(20), nullable=True)  # NIM
+    faculty = db.Column(db.String(100), nullable=True)
+    major = db.Column(db.String(100), nullable=True)  # Jurusan
+    # Avatar fields
+    avatar_url = db.Column(db.String(255), nullable=True)  # For external URLs or base64
+    avatar_filename = db.Column(db.String(255), nullable=True)  # For local files
+    avatar_type = db.Column(db.String(10), default='url')  # 'url', 'local', 'base64'
+    
     role_id = db.Column(db.Integer, db.ForeignKey('roles.id'), nullable=False, default=2)  # Default to 'user' role
     is_active = db.Column(db.Boolean, default=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
@@ -188,6 +203,37 @@ class User(db.Model):
             'email': self.email,
             'full_name': self.full_name,
             'role': self.role.to_dict() if self.role else None,
+            'role_id': self.role_id,  # Add role_id field for frontend compatibility
+            'is_active': self.is_active,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'updated_at': self.updated_at.isoformat() if self.updated_at else None
+        }
+        
+        if include_permissions:
+            user_dict['permissions'] = self.get_permissions()
+        
+        return user_dict
+    
+    def to_dict_with_profile(self, include_permissions=False):
+        """Convert user object to dictionary with full profile"""
+        user_dict = {
+            'id': self.id,
+            'username': self.username,
+            'email': self.email,
+            'full_name': self.full_name,
+            'bio': self.bio,
+            'phone': self.phone,
+            'address': self.address,
+            'date_of_birth': self.date_of_birth.isoformat() if self.date_of_birth else None,
+            'gender': self.gender,
+            'student_id': self.student_id,
+            'faculty': self.faculty,
+            'major': self.major,
+            'avatar_url': self.get_avatar_url(),  # Use get_avatar_url method
+            'avatar_filename': self.avatar_filename,
+            'avatar_type': self.avatar_type,
+            'role': self.role.to_dict() if self.role else None,
+            'role_id': self.role_id,  # Add role_id field for frontend compatibility
             'is_active': self.is_active,
             'created_at': self.created_at.isoformat() if self.created_at else None,
             'updated_at': self.updated_at.isoformat() if self.updated_at else None
@@ -230,6 +276,47 @@ class User(db.Model):
             db.session.rollback()
             return None, "Gagal membuat user"
     
+    def get_avatar_url(self, request_host=None):
+        """Get full avatar URL based on type"""
+        if self.avatar_type == 'local' and self.avatar_filename:
+            # Return URL for local file
+            if request_host:
+                return f"http://{request_host}/static/uploads/avatars/{self.avatar_filename}"
+            else:
+                return f"/static/uploads/avatars/{self.avatar_filename}"
+        elif self.avatar_type in ['url', 'base64'] and self.avatar_url:
+            # Return external URL or base64
+            return self.avatar_url
+        else:
+            # No avatar
+            return None
+    
+    def set_avatar_local(self, filename):
+        """Set avatar sebagai local file"""
+        self.avatar_filename = filename
+        self.avatar_type = 'local'
+        self.avatar_url = None
+        self.updated_at = datetime.utcnow()
+    
+    def set_avatar_url(self, url):
+        """Set avatar sebagai external URL atau base64"""
+        self.avatar_url = url
+        self.avatar_type = 'base64' if url and url.startswith('data:image/') else 'url'
+        self.avatar_filename = None
+        self.updated_at = datetime.utcnow()
+    
+    def remove_avatar(self):
+        """Remove avatar"""
+        self.avatar_url = None
+        self.avatar_filename = None
+        self.avatar_type = 'url'
+        self.updated_at = datetime.utcnow()
+    
+    def has_avatar(self):
+        """Check apakah user memiliki avatar"""
+        return (self.avatar_type == 'local' and self.avatar_filename) or \
+               (self.avatar_type in ['url', 'base64'] and self.avatar_url)
+    
     def __repr__(self):
         return f'<User {self.username} - {self.role.name if self.role else "No Role"}>'
 
@@ -245,6 +332,8 @@ class UKM(db.Model):
     contact_person = db.Column(db.String(100), nullable=True)
     contact_email = db.Column(db.String(120), nullable=True)
     contact_phone = db.Column(db.String(20), nullable=True)
+    prestasi = db.Column(db.Text, nullable=True)  # Field untuk prestasi UKM
+    kegiatan_rutin = db.Column(db.Text, nullable=True)  # Field untuk kegiatan rutin UKM
     is_active = db.Column(db.Boolean, default=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
@@ -253,12 +342,16 @@ class UKM(db.Model):
         return {
             'id': self.id,
             'nama': self.nama,
+            'name': self.nama,  # Add name field for frontend compatibility
             'deskripsi': self.deskripsi,
+            'category_id': self.category_id,  # Tambahkan category_id untuk frontend compatibility
             'category': self.category.to_dict() if self.category else None,
             'logo_url': self.logo_url,
             'contact_person': self.contact_person,
             'contact_email': self.contact_email,
             'contact_phone': self.contact_phone,
+            'prestasi': self.prestasi,
+            'kegiatan_rutin': self.kegiatan_rutin,
             'is_active': self.is_active,
             'created_at': self.created_at.isoformat() if self.created_at else None,
             'updated_at': self.updated_at.isoformat() if self.updated_at else None

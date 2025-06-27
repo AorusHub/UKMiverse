@@ -3,6 +3,7 @@ from flask_restx import Namespace, Resource, fields
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from ..models import db, UKM, Category, User
 from ..decorators import admin_required, permission_required, get_current_user
+import random
 
 api = Namespace('ukm', description='Operasi terkait UKM')
 
@@ -24,6 +25,8 @@ ukm_model = api.model('UKM', {
     'contact_person': fields.String(description='Contact Person'),
     'contact_email': fields.String(description='Contact Email'),
     'contact_phone': fields.String(description='Contact Phone'),
+    'prestasi': fields.String(description='Prestasi UKM'),
+    'kegiatan_rutin': fields.String(description='Kegiatan Rutin UKM'),
     'is_active': fields.Boolean(description='Status aktif UKM'),
     'created_at': fields.String(description='Tanggal dibuat'),
     'updated_at': fields.String(description='Tanggal diupdate')
@@ -37,12 +40,9 @@ ukm_input_model = api.model('UKMInput', {
     'logo_url': fields.String(description='URL Logo UKM'),
     'contact_person': fields.String(description='Contact Person'),
     'contact_email': fields.String(description='Contact Email'),
-    'contact_phone': fields.String(description='Contact Phone')
-})
-
-# Model untuk response message
-message_model = api.model('Message', {
-    'message': fields.String(description='Pesan response')
+    'contact_phone': fields.String(description='Contact Phone'),
+    'prestasi': fields.String(description='Prestasi UKM'),
+    'kegiatan_rutin': fields.String(description='Kegiatan Rutin UKM')
 })
 
 # Model untuk response message
@@ -80,7 +80,9 @@ class UkmList(Resource):
                 logo_url=data.get('logo_url'),
                 contact_person=data.get('contact_person'),
                 contact_email=data.get('contact_email'),
-                contact_phone=data.get('contact_phone')
+                contact_phone=data.get('contact_phone'),
+                prestasi=data.get('prestasi'),
+                kegiatan_rutin=data.get('kegiatan_rutin')
             )
             
             db.session.add(new_ukm)
@@ -131,6 +133,8 @@ class Ukm(Resource):
             ukm.contact_person = data.get('contact_person', ukm.contact_person)
             ukm.contact_email = data.get('contact_email', ukm.contact_email)
             ukm.contact_phone = data.get('contact_phone', ukm.contact_phone)
+            ukm.prestasi = data.get('prestasi', ukm.prestasi)
+            ukm.kegiatan_rutin = data.get('kegiatan_rutin', ukm.kegiatan_rutin)
             
             db.session.commit()
             return ukm.to_dict(), 200
@@ -165,3 +169,23 @@ class CategoryList(Resource):
         """[PUBLIK] Mengambil daftar semua kategori UKM."""
         categories = Category.query.all()
         return [category.to_dict() for category in categories], 200
+
+@api.route('/random')
+class RandomUkmList(Resource):
+    @api.doc(description="Mengambil rekomendasi UKM random untuk homepage (Publik).")
+    @api.marshal_list_with(ukm_model)
+    def get(self):
+        """[PUBLIK] Mengambil rekomendasi UKM random."""
+        # Get limit parameter (default 4 for homepage)
+        limit = request.args.get('limit', 4, type=int)
+        
+        # Get all active UKMs
+        all_ukms = UKM.query.filter_by(is_active=True).all()
+        
+        if not all_ukms:
+            return [], 200
+            
+        # Randomize and limit
+        random_ukms = random.sample(all_ukms, min(limit, len(all_ukms)))
+        
+        return [ukm.to_dict() for ukm in random_ukms], 200

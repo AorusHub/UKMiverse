@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UKM Detail Redesign Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+        .header {
+            background: linear-gradient(to right, #3b82f6, #8b5cf6);
+            color: white;
+            padding: 24px;
+        }
+        .header-content {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .logo {
+            width: 64px;
+            height: 64px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+        .content {
+            padding: 24px;
+        }
+        .two-column {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+        .column {
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 16px;
+        }
+        .column h3 {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+        .column ul {
+            list-style: none;
+            padding: 0;
+        }
+        .column li {
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: #6b7280;
+        }
+        .cta {
+            border-top: 1px solid #e5e7eb;
+            padding-top: 24px;
+            text-align: center;
+        }
+        .btn {
+            background: linear-gradient(to right, #3b82f6, #8b5cf6);
+            color: white;
+            border: none;
+            padding: 12px 32px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-bottom: 16px;
+        }
+        .contacts {
+            display: flex;
+            justify-content: center;
+            gap: 24px;
+            font-size: 14px;
+            color: #6b7280;
+        }
+        @media (max-width: 768px) {
+            .two-column {
+                grid-template-columns: 1fr;
+            }
+            .contacts {
+                flex-direction: column;
+                gap: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>UKM Detail Redesign - Preview</h1>
+    <p>Ini adalah preview dari halaman detail UKM yang telah didesain ulang sesuai dengan struktur yang sederhana.</p>
+    
+    <div class="card">
+        <!-- Header Section - Exact Match to Screenshot -->
+        <div class="header" style="background: linear-gradient(to bottom right, #f3e8ff, #dbeafe); color: #374151; padding: 32px;">
+            <div class="header-content" style="align-items: flex-start;">
+                <!-- Large Logo with Border like Screenshot -->
+                <div style="width: 128px; height: 128px; background: white; border-radius: 16px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); padding: 16px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                    <div style="text-align: center;">
+                        <div style="font-size: 48px; margin-bottom: 8px;">♟️</div>
+                        <div style="font-size: 10px; color: #6b7280; font-weight: 600;">UKM LOGO</div>
+                    </div>
+                </div>
+                
+                <!-- UKM Info with Large Title -->
+                <div style="flex: 1; padding-top: 8px;">
+                    <h1 style="margin: 0 0 16px 0; font-size: 48px; font-weight: bold; color: #7c3aed; letter-spacing: 0.1em;">UKM CATUR</h1>
+                    <p style="margin: 0; font-size: 18px; line-height: 1.6; color: #374151; max-width: 600px;">
+                        🏛️ UKM Catur adalah tempat bagi mahasiswa yang ingin mengasah logika dan strategi melalui permainan catur. Kami rutin mengadakan latihan mingguan dan sering mengikuti turnamen tingkat kampus maupun nasional.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Content Section -->
+        <div class="content">
+            <!-- Two Column Layout - Match Screenshot Colors -->
+            <div class="two-column">
+                <!-- Kegiatan Rutin - Purple Theme -->
+                <div style="background: #f3e8ff; border: 1px solid #d8b4fe; border-radius: 16px; padding: 24px;">
+                    <h3 style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px; font-size: 20px; font-weight: bold; color: #6b21a8;">
+                        <span style="font-size: 24px;">📅</span>
+                        Kegiatan Rutin
+                    </h3>
+                    <ul style="list-style: none; padding: 0; margin: 0;">
+                        <li style="margin-bottom: 12px; display: flex; align-items: flex-start;">
+                            <span style="color: #7c3aed; margin-right: 12px; margin-top: 4px;">•</span>
+                            <span>Latihan mingguan setiap Jumat sore</span>
+                        </li>
+                        <li style="margin-bottom: 12px; display: flex; align-items: flex-start;">
+                            <span style="color: #7c3aed; margin-right: 12px; margin-top: 4px;">•</span>
+                            <span>Sparring & simulasi antar anggota</span>
+                        </li>
+                        <li style="margin-bottom: 12px; display: flex; align-items: flex-start;">
+                            <span style="color: #7c3aed; margin-right: 12px; margin-top: 4px;">•</span>
+                            <span>Kelas pemula untuk anggota baru</span>
+                        </li>
+                        <li style="margin-bottom: 12px; display: flex; align-items: flex-start;">
+                            <span style="color: #7c3aed; margin-right: 12px; margin-top: 4px;">•</span>
+                            <span>Analisis pertandingan bersama senior</span>
+                        </li>
+                        <li style="margin-bottom: 12px; display: flex; align-items: flex-start;">
+                            <span style="color: #7c3aed; margin-right: 12px; margin-top: 4px;">•</span>
+                            <span>Turnamen internal tiap semester</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Prestasi - Yellow Theme -->
+                <div style="background: #fefce8; border: 1px solid #fde047; border-radius: 16px; padding: 24px;">
+                    <h3 style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px; font-size: 20px; font-weight: bold; color: #a16207;">
+                        <span style="font-size: 24px;">🏆</span>
+                        Prestasi
+                    </h3>
+                    <ul style="list-style: none; padding: 0; margin: 0;">
+                        <li style="margin-bottom: 12px; display: flex; align-items: flex-start;">
+                            <span style="color: #ca8a04; margin-right: 12px; margin-top: 4px;">•</span>
+                            <span>Juara I Catur Fakultas 2023</span>
+                        </li>
+                        <li style="margin-bottom: 12px; display: flex; align-items: flex-start;">
+                            <span style="color: #ca8a04; margin-right: 12px; margin-top: 4px;">•</span>
+                            <span>Juara 2 Antar Universitas Sulawesi 2022</span>
+                        </li>
+                        <li style="margin-bottom: 12px; display: flex; align-items: flex-start;">
+                            <span style="color: #ca8a04; margin-right: 12px; margin-top: 4px;">•</span>
+                            <span>Finalis Nasional Kemenpura 2023</span>
+                        </li>
+                        <li style="margin-bottom: 12px; display: flex; align-items: flex-start;">
+                            <span style="color: #ca8a04; margin-right: 12px; margin-top: 4px;">•</span>
+                            <span>Peserta Terbaik Pelatihan Percasi 2021</span>
+                        </li>
+                        <li style="margin-bottom: 12px; display: flex; align-items: flex-start;">
+                            <span style="color: #ca8a04; margin-right: 12px; margin-top: 4px;">•</span>
+                            <span>Juara Harapan I Catur Se-Kampus 2024</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Call to Action - New Design without Button -->
+            <div style="margin-top: 32px; background: linear-gradient(to right, #7c3aed, #6d28d9); border-radius: 16px; padding: 32px; color: white;">
+                <!-- Header -->
+                <div style="text-align: center; margin-bottom: 24px;">
+                    <h3 style="margin: 0; font-size: 24px; font-weight: bold;">Tertarik bergabung dengan UKM Catur?</h3>
+                </div>
+                
+                <!-- Two Column Layout -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; align-items: center;">
+                    <!-- Left Side - Description -->
+                    <div style="background: rgba(139, 92, 246, 0.3); border-radius: 12px; padding: 24px; text-align: center;">
+                        <p style="margin: 0; font-size: 18px; line-height: 1.6; color: #c4b5fd;">
+                            Yuk, jadi bagian dari komunitas pecinta strategi dan logika!
+                        </p>
+                    </div>
+                    
+                    <!-- Right Side - Social Links -->
+                    <div style="display: flex; flex-direction: column; gap: 12px;">
+                        <!-- Instagram Link -->
+                        <div style="background: rgba(255,255,255,0.1); border-radius: 8px; padding: 12px; display: flex; align-items: center; gap: 12px; cursor: pointer; transition: all 0.3s;">
+                            <div style="width: 32px; height: 32px; background: #ec4899; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                                <span style="color: white; font-size: 14px;">📷</span>
+                            </div>
+                            <span style="color: white; font-weight: 500;">@ukm.catur_x</span>
+                        </div>
+                        
+                        <!-- Email Link -->
+                        <div style="background: rgba(255,255,255,0.1); border-radius: 8px; padding: 12px; display: flex; align-items: center; gap: 12px; cursor: pointer; transition: all 0.3s;">
+                            <div style="width: 32px; height: 32px; background: #3b82f6; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                                <span style="color: white; font-size: 14px;">✉️</span>
+                            </div>
+                            <span style="color: white; font-weight: 500;">ukmcatur@unhas.ac.id</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <h2>Implementasi di React</h2>
+    <p>Design di atas telah diimplementasikan dalam <code>frontend/src/pages/UKMDetail.jsx</code> menggunakan:</p>
+    <ul>
+        <li><strong>React Router</strong> untuk navigasi dari halaman list UKM</li>
+        <li><strong>Tailwind CSS</strong> untuk styling responsive</li>
+        <li><strong>Backend API</strong> endpoint <code>/api/ukm/{id}</code> untuk mengambil data</li>
+        <li><strong>Error Handling</strong> untuk UKM tidak ditemukan</li>
+        <li><strong>Auth Context</strong> untuk validasi user login sebelum join</li>
+    </ul>
+
+    <h2>Cara Testing</h2>
+    <ol>
+        <li>Jalankan backend: <code>cd backend && python run.py</code></li>
+        <li>Jalankan frontend: <code>cd frontend && npm run dev</code></li>
+        <li>Buka <code>http://localhost:5173</code></li>
+        <li>Navigate ke halaman Daftar UKM</li>
+        <li>Klik tombol "LIHAT DETAIL" pada salah satu UKM</li>
+        <li>Verify halaman detail sesuai dengan preview di atas</li>
+    </ol>
+</body>
+</html>

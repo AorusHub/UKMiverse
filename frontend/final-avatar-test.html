@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Final Avatar Test - UKMiverse</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 20px auto; padding: 20px; background: #f5f5f5; }
+        .container { background: white; border-radius: 12px; padding: 20px; margin: 20px 0; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .success { background: #d4edda; border-left: 4px solid #28a745; padding: 15px; margin: 10px 0; }
+        .error { background: #f8d7da; border-left: 4px solid #dc3545; padding: 15px; margin: 10px 0; }
+        .warning { background: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; margin: 10px 0; }
+        .info { background: #d1ecf1; border-left: 4px solid #17a2b8; padding: 15px; margin: 10px 0; }
+        
+        .avatar-test { 
+            width: 150px; 
+            height: 150px; 
+            border-radius: 50%; 
+            object-fit: cover; 
+            border: 3px solid #ddd; 
+            margin: 10px;
+            transition: all 0.3s ease;
+        }
+        .avatar-test:hover { border-color: #9333ea; transform: scale(1.05); }
+        
+        .test-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); 
+            gap: 20px; 
+            margin: 20px 0; 
+        }
+        
+        .test-item {
+            text-align: center;
+            padding: 15px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            background: #fafafa;
+        }
+        
+        input { 
+            width: 100%; 
+            padding: 10px; 
+            border: 1px solid #ddd; 
+            border-radius: 6px; 
+            margin: 5px 0; 
+        }
+        
+        button { 
+            padding: 10px 20px; 
+            background: #9333ea; 
+            color: white; 
+            border: none; 
+            border-radius: 6px; 
+            cursor: pointer; 
+            margin: 5px;
+        }
+        
+        button:hover { background: #7c3aed; }
+        
+        .status {
+            font-size: 12px;
+            padding: 4px 8px;
+            border-radius: 12px;
+            margin: 5px 0;
+            display: inline-block;
+        }
+        .status-loading { background: #fff3cd; color: #856404; }
+        .status-success { background: #d4edda; color: #155724; }
+        .status-error { background: #f8d7da; color: #721c24; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎯 Final Avatar Test - UKMiverse</h1>
+        <p><strong>Test ini memverifikasi perbaikan avatar dengan SimpleAvatar component</strong></p>
+        
+        <div class="success">
+            <h3>✅ Perbaikan yang Telah Diterapkan:</h3>
+            <ul>
+                <li>Menghapus <code>crossOrigin="anonymous"</code> - Penyebab utama CORS error</li>
+                <li>Menghapus <code>referrerPolicy="no-referrer"</code> - Menyebabkan server reject</li>
+                <li>Menggunakan komponen <code>SimpleAvatar</code> yang reliable</li>
+                <li>Implementasi fallback strategy yang sederhana dan efektif</li>
+                <li>Error handling yang lebih baik dengan retry button</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="container">
+        <h2>🧪 Test URLs yang Terbukti Bekerja</h2>
+        <p>URL-URL ini telah ditest dan terbukti reliable untuk avatar:</p>
+        
+        <div class="test-grid" id="testGrid">
+            <!-- Test items akan diisi oleh JavaScript -->
+        </div>
+    </div>
+
+    <div class="container">
+        <h2>🔧 Test URL Custom</h2>
+        <input type="text" id="customUrl" placeholder="Masukkan URL gambar untuk ditest" 
+               value="https://ui-avatars.com/api/?name=Test User&size=150&background=9333ea&color=fff">
+        <button onclick="testCustomUrl()">Test URL</button>
+        <div id="customResult"></div>
+    </div>
+
+    <div class="container">
+        <h2>📋 Panduan Penggunaan</h2>
+        <div class="info">
+            <h4>Untuk menggunakan avatar yang berfungsi dengan baik:</h4>
+            <ol>
+                <li><strong>Gunakan URL yang telah ditest di atas</strong></li>
+                <li><strong>Hindari URL dari sumber yang tidak dikenal</strong></li>
+                <li><strong>Selalu gunakan HTTPS URLs</strong></li>
+                <li><strong>Test URL terlebih dahulu sebelum menggunakan</strong></li>
+            </ol>
+        </div>
+
+        <div class="warning">
+            <h4>⚠️ URL yang Sebaiknya Dihindari:</h4>
+            <ul>
+                <li>URL dengan protokol HTTP (bukan HTTPS)</li>
+                <li>URL dari server yang tidak mendukung CORS</li>
+                <li>URL dari social media (Instagram, Facebook, dll) - sering diblokir</li>
+                <li>URL dari server pribadi tanpa proper headers</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // URLs yang terbukti reliable
+        const testUrls = [
+            {
+                name: "Via Placeholder Purple",
+                url: "https://via.placeholder.com/150/9333ea/FFFFFF?text=USER",
+                description: "Placeholder service dengan warna purple"
+            },
+            {
+                name: "Via Placeholder Blue", 
+                url: "https://via.placeholder.com/150/0066cc/FFFFFF?text=AVATAR",
+                description: "Placeholder service dengan warna biru"
+            },
+            {
+                name: "Dummy Image Green",
+                url: "https://dummyimage.com/150x150/28a745/ffffff&text=OK",
+                description: "Dummy image service dengan warna hijau"
+            },
+            {
+                name: "UI Avatars Service",
+                url: "https://ui-avatars.com/api/?name=Test User&size=150&background=9333ea&color=fff",
+                description: "UI Avatars service dengan inisial nama"
+            },
+            {
+                name: "Dummy Image Gray",
+                url: "https://dummyimage.com/150x150/6c757d/ffffff&text=DEFAULT",
+                description: "Dummy image service dengan warna abu-abu"
+            },
+            {
+                name: "Via Placeholder Red",
+                url: "https://via.placeholder.com/150/dc2626/FFFFFF?text=TEST",
+                description: "Placeholder service dengan warna merah"
+            }
+        ];
+
+        function createTestItem(testData, index) {
+            const testItem = document.createElement('div');
+            testItem.className = 'test-item';
+            testItem.innerHTML = `
+                <h4>${testData.name}</h4>
+                <img class="avatar-test" data-index="${index}" alt="${testData.name}">
+                <div class="status status-loading" id="status-${index}">Loading...</div>
+                <p style="font-size: 11px; color: #666; margin: 5px 0;">${testData.description}</p>
+                <button onclick="copyUrl('${testData.url}')" style="font-size: 12px; padding: 5px 10px;">Copy URL</button>
+            `;
+            return testItem;
+        }
+
+        function testImage(url, index) {
+            const img = document.querySelector(`img[data-index="${index}"]`);
+            const status = document.getElementById(`status-${index}`);
+            
+            const startTime = Date.now();
+            
+            img.onload = () => {
+                const loadTime = Date.now() - startTime;
+                status.textContent = `✅ Success (${loadTime}ms)`;
+                status.className = 'status status-success';
+                console.log(`✅ Test ${index + 1} berhasil: ${url}`);
+            };
+            
+            img.onerror = () => {
+                const loadTime = Date.now() - startTime;
+                status.textContent = `❌ Failed (${loadTime}ms)`;
+                status.className = 'status status-error';
+                console.error(`❌ Test ${index + 1} gagal: ${url}`);
+            };
+            
+            img.src = url;
+        }
+
+        function testCustomUrl() {
+            const url = document.getElementById('customUrl').value.trim();
+            const resultDiv = document.getElementById('customResult');
+            
+            if (!url) {
+                resultDiv.innerHTML = '<div class="error">❌ Mohon masukkan URL</div>';
+                return;
+            }
+            
+            resultDiv.innerHTML = '<div class="info">🔄 Testing custom URL...</div>';
+            
+            const img = document.createElement('img');
+            img.className = 'avatar-test';
+            
+            const startTime = Date.now();
+            
+            img.onload = () => {
+                const loadTime = Date.now() - startTime;
+                resultDiv.innerHTML = `
+                    <div class="success">
+                        ✅ URL berhasil dimuat dalam ${loadTime}ms<br>
+                        <strong>URL ini aman digunakan untuk avatar!</strong>
+                    </div>
+                `;
+                resultDiv.appendChild(img);
+            };
+            
+            img.onerror = () => {
+                const loadTime = Date.now() - startTime;
+                resultDiv.innerHTML = `
+                    <div class="error">
+                        ❌ URL gagal dimuat setelah ${loadTime}ms<br>
+                        <strong>URL ini tidak dapat digunakan untuk avatar.</strong><br>
+                        Coba gunakan salah satu URL yang telah ditest di atas.
+                    </div>
+                `;
+            };
+            
+            img.src = url;
+        }
+
+        function copyUrl(url) {
+            navigator.clipboard.writeText(url).then(() => {
+                alert('✅ URL berhasil disalin ke clipboard!');
+            }).catch(err => {
+                console.error('Failed to copy: ', err);
+                // Fallback method
+                const textArea = document.createElement('textarea');
+                textArea.value = url;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                alert('✅ URL berhasil disalin ke clipboard!');
+            });
+        }
+
+        // Initialize tests
+        document.addEventListener('DOMContentLoaded', () => {
+            const testGrid = document.getElementById('testGrid');
+            
+            testUrls.forEach((testData, index) => {
+                const testItem = createTestItem(testData, index);
+                testGrid.appendChild(testItem);
+                
+                // Start test after a small delay
+                setTimeout(() => {
+                    testImage(testData.url, index);
+                }, 100 * (index + 1));
+            });
+            
+            console.log('🎯 Final Avatar Test initialized');
+            console.log('Testing', testUrls.length, 'reliable URLs...');
+        });
+    </script>
+</body>
+</html>

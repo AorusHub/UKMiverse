@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Load Test - UKMiverse</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .test-image {
+            width: 150px;
+            height: 150px;
+            border: 2px solid #9333ea;
+            border-radius: 50%;
+            object-fit: cover;
+            margin: 10px auto;
+            display: block;
+        }
+        .test-result {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        .success {
+            background: #d1fae5;
+            color: #065f46;
+            border: 1px solid #34d399;
+        }
+        .error {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #f87171;
+        }
+        .test-case {
+            border: 1px solid #e5e7eb;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+        }
+        input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #d1d5db;
+            border-radius: 5px;
+            margin: 5px 0;
+        }
+        button {
+            background: #9333ea;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #7c3aed;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🖼️ Image Load Test</h1>
+        <p>Tool untuk testing apakah URL gambar bisa dimuat dengan baik</p>
+        
+        <div>
+            <label><strong>Test URL:</strong></label>
+            <input type="text" id="test-url" placeholder="Masukkan URL gambar..." value="https://via.placeholder.com/150">
+            <button onclick="testImage()">Test Image</button>
+        </div>
+        
+        <div id="result"></div>
+    </div>
+
+    <div class="container">
+        <h3>Test Cases Otomatis:</h3>
+        <button onclick="runAllTests()">Run All Tests</button>
+        <div id="test-results"></div>
+    </div>
+
+    <div class="container">
+        <h3>Common Test URLs:</h3>
+        <div style="display: grid; gap: 5px;">
+            <button onclick="quickTest('https://via.placeholder.com/150/0000FF/FFFFFF?text=Test')">Placeholder Blue</button>
+            <button onclick="quickTest('https://picsum.photos/150')">Random Image</button>
+            <button onclick="quickTest('https://httpbin.org/image/png')">PNG Test</button>
+            <button onclick="quickTest('https://httpbin.org/image/jpeg')">JPEG Test</button>
+            <button onclick="quickTest('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChAI9NhxKvgAAAABJRU5ErkJggg==')">Base64 Mini</button>
+        </div>
+    </div>
+
+    <script>
+        function testImage() {
+            const url = document.getElementById('test-url').value.trim();
+            if (!url) {
+                alert('Please enter a URL');
+                return;
+            }
+            testSingleImage(url, 'result');
+        }
+
+        function quickTest(url) {
+            document.getElementById('test-url').value = url;
+            testSingleImage(url, 'result');
+        }
+
+        function testSingleImage(url, resultElementId) {
+            const resultDiv = document.getElementById(resultElementId);
+            const startTime = Date.now();
+            
+            resultDiv.innerHTML = `
+                <div class="test-case">
+                    <h4>Testing: ${url.substring(0, 80)}${url.length > 80 ? '...' : ''}</h4>
+                    <p>Loading...</p>
+                </div>
+            `;
+
+            // Create test image
+            const img = new Image();
+            img.crossOrigin = 'anonymous';
+            
+            img.onload = function() {
+                const loadTime = Date.now() - startTime;
+                resultDiv.innerHTML = `
+                    <div class="test-case">
+                        <h4>✅ SUCCESS</h4>
+                        <p><strong>URL:</strong> ${url}</p>
+                        <p><strong>Load Time:</strong> ${loadTime}ms</p>
+                        <p><strong>Dimensions:</strong> ${img.naturalWidth} x ${img.naturalHeight}</p>
+                        <img src="${url}" class="test-image" alt="Test Image">
+                        <div class="test-result success">Image loaded successfully!</div>
+                    </div>
+                `;
+            };
+
+            img.onerror = function(e) {
+                const loadTime = Date.now() - startTime;
+                resultDiv.innerHTML = `
+                    <div class="test-case">
+                        <h4>❌ FAILED</h4>
+                        <p><strong>URL:</strong> ${url}</p>
+                        <p><strong>Load Time:</strong> ${loadTime}ms</p>
+                        <p><strong>Error:</strong> Failed to load image</p>
+                        <div class="test-result error">Image failed to load!</div>
+                        <p><strong>Possible causes:</strong></p>
+                        <ul>
+                            <li>URL is invalid or inaccessible</li>
+                            <li>CORS policy blocking the request</li>
+                            <li>Image format not supported</li>
+                            <li>Network connectivity issues</li>
+                        </ul>
+                    </div>
+                `;
+            };
+
+            img.src = url;
+        }
+
+        function runAllTests() {
+            const testUrls = [
+                'https://via.placeholder.com/150/FF0000/FFFFFF?text=RED',
+                'https://via.placeholder.com/150/00FF00/FFFFFF?text=GREEN',
+                'https://via.placeholder.com/150/0000FF/FFFFFF?text=BLUE',
+                'https://picsum.photos/150',
+                'https://httpbin.org/image/png',
+                'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChAI9NhxKvgAAAABJRU5ErkJggg==',
+                'https://invalid-url-test.com/nonexistent.jpg'
+            ];
+
+            const resultsDiv = document.getElementById('test-results');
+            resultsDiv.innerHTML = '<h4>Running tests...</h4>';
+
+            let completedTests = 0;
+            const results = [];
+
+            testUrls.forEach((url, index) => {
+                setTimeout(() => {
+                    const img = new Image();
+                    img.crossOrigin = 'anonymous';
+                    const startTime = Date.now();
+
+                    img.onload = function() {
+                        const loadTime = Date.now() - startTime;
+                        results[index] = {
+                            url: url,
+                            status: 'SUCCESS',
+                            loadTime: loadTime,
+                            dimensions: `${img.naturalWidth}x${img.naturalHeight}`
+                        };
+                        checkComplete();
+                    };
+
+                    img.onerror = function() {
+                        const loadTime = Date.now() - startTime;
+                        results[index] = {
+                            url: url,
+                            status: 'FAILED',
+                            loadTime: loadTime,
+                            dimensions: 'N/A'
+                        };
+                        checkComplete();
+                    };
+
+                    img.src = url;
+                }, index * 100); // Stagger requests
+            });
+
+            function checkComplete() {
+                completedTests++;
+                if (completedTests === testUrls.length) {
+                    displayResults();
+                }
+            }
+
+            function displayResults() {
+                let html = '<h4>Test Results:</h4>';
+                results.forEach((result, index) => {
+                    const statusClass = result.status === 'SUCCESS' ? 'success' : 'error';
+                    html += `
+                        <div class="test-case">
+                            <p><strong>Test ${index + 1}:</strong> ${result.status}</p>
+                            <p><strong>URL:</strong> ${result.url.substring(0, 60)}${result.url.length > 60 ? '...' : ''}</p>
+                            <p><strong>Load Time:</strong> ${result.loadTime}ms</p>
+                            <p><strong>Dimensions:</strong> ${result.dimensions}</p>
+                            <div class="test-result ${statusClass}">${result.status}</div>
+                        </div>
+                    `;
+                });
+                resultsDiv.innerHTML = html;
+            }
+        }
+
+        // Auto-test on page load
+        window.addEventListener('load', () => {
+            console.log('Image Load Test Tool ready');
+        });
+    </script>
+</body>
+</html>

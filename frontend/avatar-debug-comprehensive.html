@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Avatar Debug - UKMiverse</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 20px auto; padding: 20px; }
+        .test-box { border: 1px solid #ddd; border-radius: 8px; padding: 15px; margin: 15px 0; }
+        .success { background: #d4edda; border-color: #c3e6cb; }
+        .error { background: #f8d7da; border-color: #f5c6cb; }
+        .warning { background: #fff3cd; border-color: #ffeaa7; }
+        .info { background: #d1ecf1; border-color: #bee5eb; }
+        input, button { padding: 8px; margin: 5px; border: 1px solid #ddd; border-radius: 4px; }
+        button { background: #007bff; color: white; cursor: pointer; border: none; }
+        button:hover { background: #0056b3; }
+        .avatar-test { width: 150px; height: 150px; border: 2px solid #ddd; margin: 10px; border-radius: 50%; object-fit: cover; }
+        pre { background: #f8f9fa; padding: 10px; border-radius: 4px; overflow-x: auto; font-size: 12px; }
+    </style>
+</head>
+<body>
+    <h1>🔍 Avatar Debug Tool - UKMiverse</h1>
+    
+    <div class="test-box info">
+        <h3>1. Test Backend Connection</h3>
+        <button onclick="testBackend()">Test Backend</button>
+        <div id="backendResult"></div>
+    </div>
+
+    <div class="test-box">
+        <h3>2. Test Simple Image Loading</h3>
+        <p>Test gambar tanpa CORS/referrer attributes:</p>
+        
+        <h4>Test URL:</h4>
+        <input type="text" id="testUrl" style="width: 100%;" 
+               value="https://via.placeholder.com/150/9333ea/FFFFFF?text=TEST">
+        <button onclick="testSimpleImage()">Test Image</button>
+        
+        <div id="imageTestResult"></div>
+        <div id="imageContainer"></div>
+    </div>
+
+    <div class="test-box">
+        <h3>3. Test Profile Update</h3>
+        <p>Test update avatar melalui API:</p>
+        
+        <div>
+            <label>Username:</label>
+            <input type="text" id="username" value="testuser">
+            <label>Password:</label>
+            <input type="password" id="password" value="password123">
+        </div>
+        
+        <div>
+            <label>Avatar URL:</label>
+            <input type="text" id="avatarUrl" style="width: 100%;" 
+                   value="https://via.placeholder.com/150/28a745/FFFFFF?text=API">
+        </div>
+        
+        <button onclick="testProfileUpdate()">Test Update Avatar</button>
+        <div id="profileResult"></div>
+    </div>
+
+    <div class="test-box">
+        <h3>4. Debug Console</h3>
+        <button onclick="clearLog()">Clear Log</button>
+        <pre id="debugLog"></pre>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:5000/api';
+        let authToken = null;
+
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const logElement = document.getElementById('debugLog');
+            const emoji = {
+                'info': 'ℹ️',
+                'success': '✅', 
+                'error': '❌',
+                'warning': '⚠️'
+            }[type] || 'ℹ️';
+            
+            logElement.innerHTML += `[${timestamp}] ${emoji} ${message}\n`;
+            logElement.scrollTop = logElement.scrollHeight;
+            console.log(`${emoji} ${message}`);
+        }
+
+        function clearLog() {
+            document.getElementById('debugLog').innerHTML = '';
+        }
+
+        async function testBackend() {
+            log('Testing backend connection...', 'info');
+            const resultDiv = document.getElementById('backendResult');
+            
+            try {
+                // Test health endpoint
+                const response = await fetch(`${API_BASE}/health`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    resultDiv.innerHTML = '<div class="success">✅ Backend is running</div>';
+                    log('Backend health check passed', 'success');
+                } else {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="error">❌ Backend error: ${error.message}</div>`;
+                log(`Backend connection failed: ${error.message}`, 'error');
+                
+                // Try alternative test
+                try {
+                    log('Trying alternative backend test...', 'info');
+                    const altResponse = await fetch(`${API_BASE}/auth/register`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ test: true })
+                    });
+                    
+                    log(`Alternative test response: ${altResponse.status}`, 'info');
+                } catch (altError) {
+                    log(`Alternative test also failed: ${altError.message}`, 'error');
+                }
+            }
+        }
+
+        function testSimpleImage() {
+            const url = document.getElementById('testUrl').value;
+            const resultDiv = document.getElementById('imageTestResult');
+            const containerDiv = document.getElementById('imageContainer');
+            
+            if (!url) {
+                resultDiv.innerHTML = '<div class="error">❌ Please enter a URL</div>';
+                return;
+            }
+
+            log(`Testing image URL: ${url}`, 'info');
+            resultDiv.innerHTML = '<div class="info">🔄 Testing image...</div>';
+            containerDiv.innerHTML = '';
+
+            // Test 1: Basic img tag (no CORS)
+            const img1 = document.createElement('img');
+            img1.className = 'avatar-test';
+            img1.alt = 'Test 1 - Basic';
+            img1.title = 'Test 1: Basic loading (no CORS/referrer)';
+            
+            const startTime = Date.now();
+            
+            img1.onload = () => {
+                const loadTime = Date.now() - startTime;
+                resultDiv.innerHTML = `<div class="success">✅ Image loaded successfully in ${loadTime}ms</div>`;
+                log(`Image loaded successfully: ${url} (${loadTime}ms)`, 'success');
+            };
+            
+            img1.onerror = (e) => {
+                const loadTime = Date.now() - startTime;
+                resultDiv.innerHTML = `<div class="error">❌ Image failed to load after ${loadTime}ms</div>`;
+                log(`Image load failed: ${url} (${loadTime}ms)`, 'error');
+                log(`Error details: ${JSON.stringify({
+                    type: e.type,
+                    target: e.target.tagName,
+                    src: e.target.src
+                })}`, 'error');
+            };
+            
+            img1.src = url;
+            containerDiv.appendChild(img1);
+        }
+
+        async function login() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            log(`Attempting login for user: ${username}`, 'info');
+            
+            try {
+                const response = await fetch(`${API_BASE}/auth/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ username, password })
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    authToken = data.access_token;
+                    log('Login successful', 'success');
+                    return true;
+                } else {
+                    const errorData = await response.json();
+                    log(`Login failed: ${errorData.message || response.statusText}`, 'error');
+                    return false;
+                }
+            } catch (error) {
+                log(`Login error: ${error.message}`, 'error');
+                return false;
+            }
+        }
+
+        async function testProfileUpdate() {
+            const resultDiv = document.getElementById('profileResult');
+            const avatarUrl = document.getElementById('avatarUrl').value;
+            
+            if (!avatarUrl) {
+                resultDiv.innerHTML = '<div class="error">❌ Please enter avatar URL</div>';
+                return;
+            }
+
+            resultDiv.innerHTML = '<div class="info">🔄 Testing profile update...</div>';
+            
+            // First, try to login
+            if (!authToken) {
+                log('No auth token, attempting login...', 'info');
+                const loginSuccess = await login();
+                if (!loginSuccess) {
+                    resultDiv.innerHTML = '<div class="error">❌ Login failed, cannot test profile update</div>';
+                    return;
+                }
+            }
+
+            try {
+                log(`Updating profile with avatar URL: ${avatarUrl}`, 'info');
+                
+                const response = await fetch(`${API_BASE}/profile/`, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ avatar_url: avatarUrl })
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    resultDiv.innerHTML = '<div class="success">✅ Profile updated successfully</div>';
+                    log('Profile update successful', 'success');
+                    log(`New avatar URL: ${data.avatar_url}`, 'info');
+                    
+                    // Test the updated avatar
+                    const testImg = document.createElement('img');
+                    testImg.className = 'avatar-test';
+                    testImg.src = data.avatar_url;
+                    testImg.onload = () => log('Updated avatar loads correctly', 'success');
+                    testImg.onerror = () => log('Updated avatar failed to load', 'error');
+                    resultDiv.appendChild(testImg);
+                    
+                } else {
+                    const errorData = await response.json();
+                    resultDiv.innerHTML = `<div class="error">❌ Profile update failed: ${errorData.message || response.statusText}</div>`;
+                    log(`Profile update failed: ${errorData.message || response.statusText}`, 'error');
+                }
+                
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="error">❌ Profile update error: ${error.message}</div>`;
+                log(`Profile update error: ${error.message}`, 'error');
+            }
+        }
+
+        // Auto-start basic tests
+        window.addEventListener('load', () => {
+            log('Avatar Debug Tool loaded', 'info');
+            log('Starting automatic diagnostics...', 'info');
+            
+            // Test current page environment
+            log(`Current page protocol: ${window.location.protocol}`, 'info');
+            log(`Current page host: ${window.location.host}`, 'info');
+            log(`User agent: ${navigator.userAgent}`, 'info');
+            log(`Online status: ${navigator.onLine}`, 'info');
+            
+            // Auto-test backend connection
+            setTimeout(testBackend, 1000);
+        });
+    </script>
+</body>
+</html>

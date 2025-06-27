@@ -1,21 +1,32 @@
-from flask import Flask
+from flask import Flask, send_from_directory
 from flask_restx import Api
 from flask_jwt_extended import JWTManager
 from flask_cors import CORS
 from .models import db
 from .api.auth_routes import api as auth_ns
 from .api.ukm_routes import api as ukm_ns
+from .api.profile_routes import api as profile_ns
+from .services.file_upload import FileUploadService
 from config import Config
+import os
 
 def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
 
     # Aktifkan CORS untuk mengizinkan request dari frontend
-    CORS(app)
+    CORS(app, 
+         origins=['http://localhost:3000', 'http://localhost:5173', 'http://localhost:5174', 'http://localhost:5175', 'http://localhost:5176'],
+         allow_headers=['Content-Type', 'Authorization', 'Access-Control-Allow-Origin'],
+         methods=['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+         supports_credentials=True,
+         max_age=86400)  # Cache preflight for 24 hours
 
     # Inisialisasi database
     db.init_app(app)
+
+    # Initialize file upload service
+    file_upload_service = FileUploadService(app)
 
     # Inisialisasi ekstensi
     jwt = JWTManager(app)
@@ -42,6 +53,14 @@ def create_app():
     # Daftarkan namespace dari file routes
     api.add_namespace(auth_ns, path='/api/auth')
     api.add_namespace(ukm_ns, path='/api/ukm')
+    api.add_namespace(profile_ns, path='/api/profile')
+
+    # Add static file serving route for avatar files
+    @app.route('/static/uploads/avatars/<filename>')
+    def uploaded_avatar(filename):
+        """Serve uploaded avatar files"""
+        upload_folder = os.path.join(app.root_path, 'static', 'uploads', 'avatars')
+        return send_from_directory(upload_folder, filename)
 
     # Buat tabel dan data awal
     with app.app_context():

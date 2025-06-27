@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Avatar Load Diagnostic Tool - UKMiverse</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 1000px; margin: 20px auto; padding: 20px; }
+        .test-box { border: 1px solid #ddd; border-radius: 8px; padding: 15px; margin: 10px 0; }
+        .success { background: #d4edda; border-color: #c3e6cb; }
+        .error { background: #f8d7da; border-color: #f5c6cb; }
+        .warning { background: #fff3cd; border-color: #ffeaa7; }
+        .info { background: #d1ecf1; border-color: #bee5eb; }
+        input { width: 100%; padding: 8px; margin: 5px 0; border: 1px solid #ddd; border-radius: 4px; }
+        button { padding: 8px 16px; margin: 5px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        .avatar-test { width: 100px; height: 100px; border: 2px solid #ddd; margin: 10px; border-radius: 50%; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+    </style>
+</head>
+<body>
+    <h1>🔍 Avatar Load Diagnostic Tool</h1>
+    
+    <div class="test-box info">
+        <h3>Test URL Gambar</h3>
+        <input type="text" id="testUrl" placeholder="Masukkan URL gambar untuk ditest" 
+               value="https://via.placeholder.com/150/9333ea/FFFFFF?text=TEST">
+        <button onclick="testImageUrl()">Test URL</button>
+        <div id="testResult"></div>
+    </div>
+
+    <div class="grid">
+        <div class="test-box">
+            <h3>1. CORS Policy Test</h3>
+            <p>Menguji apakah gambar diblokir oleh kebijakan CORS (Cross-Origin Resource Sharing)</p>
+            <div id="corsTest">
+                <button onclick="testCORS()">Test CORS</button>
+                <div id="corsResult"></div>
+            </div>
+        </div>
+
+        <div class="test-box">
+            <h3>2. Mixed Content Test</h3>
+            <p>Menguji apakah HTTP images diblokir di HTTPS site</p>
+            <div id="mixedContentTest">
+                <button onclick="testMixedContent()">Test Mixed Content</button>
+                <div id="mixedContentResult"></div>
+            </div>
+        </div>
+
+        <div class="test-box">
+            <h3>3. Network Access Test</h3>
+            <p>Menguji koneksi jaringan ke server gambar</p>
+            <div id="networkTest">
+                <button onclick="testNetwork()">Test Network</button>
+                <div id="networkResult"></div>
+            </div>
+        </div>
+
+        <div class="test-box">
+            <h3>4. Browser Policy Test</h3>
+            <p>Menguji kebijakan browser untuk memuat gambar eksternal</p>
+            <div id="browserTest">
+                <button onclick="testBrowserPolicy()">Test Browser Policy</button>
+                <div id="browserResult"></div>
+            </div>
+        </div>
+
+        <div class="test-box">
+            <h3>5. Image Format Test</h3>
+            <p>Menguji apakah format gambar didukung</p>
+            <div id="formatTest">
+                <button onclick="testImageFormat()">Test Format Support</button>
+                <div id="formatResult"></div>
+            </div>
+        </div>
+
+        <div class="test-box">
+            <h3>6. Referrer Policy Test</h3>
+            <p>Menguji dampak referrer policy terhadap loading gambar</p>
+            <div id="referrerTest">
+                <button onclick="testReferrerPolicy()">Test Referrer Policy</button>
+                <div id="referrerResult"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="test-box warning">
+        <h3>Live Avatar Test</h3>
+        <p>Test langsung dengan berbagai konfigurasi loading:</p>
+        <div style="display: flex; flex-wrap: wrap; gap: 10px;">
+            <div>
+                <h4>Normal</h4>
+                <img id="avatar1" class="avatar-test" style="object-fit: cover;">
+            </div>
+            <div>
+                <h4>With CORS</h4>
+                <img id="avatar2" class="avatar-test" crossorigin="anonymous" style="object-fit: cover;">
+            </div>
+            <div>
+                <h4>No Referrer</h4>
+                <img id="avatar3" class="avatar-test" referrerpolicy="no-referrer" style="object-fit: cover;">
+            </div>
+            <div>
+                <h4>CORS + No Referrer</h4>
+                <img id="avatar4" class="avatar-test" crossorigin="anonymous" referrerpolicy="no-referrer" style="object-fit: cover;">
+            </div>
+        </div>
+        <button onclick="testAllConfigurations()">Test All Configurations</button>
+    </div>
+
+    <script>
+        let currentTestUrl = '';
+
+        function log(elementId, message, type = 'info') {
+            const element = document.getElementById(elementId);
+            const className = type === 'success' ? 'success' : type === 'error' ? 'error' : type === 'warning' ? 'warning' : 'info';
+            element.innerHTML += `<div class="${className}" style="padding: 5px; margin: 2px 0; border-radius: 3px; font-size: 12px;">${message}</div>`;
+        }
+
+        function clear(elementId) {
+            document.getElementById(elementId).innerHTML = '';
+        }
+
+        function testImageUrl() {
+            const url = document.getElementById('testUrl').value;
+            if (!url) {
+                alert('Masukkan URL gambar terlebih dahulu');
+                return;
+            }
+            
+            currentTestUrl = url;
+            clear('testResult');
+            log('testResult', `🔍 Testing URL: ${url}`, 'info');
+            
+            // Test basic loading
+            const img = new Image();
+            const startTime = Date.now();
+            
+            img.onload = () => {
+                const loadTime = Date.now() - startTime;
+                log('testResult', `✅ Image loaded successfully in ${loadTime}ms`, 'success');
+                log('testResult', `📏 Dimensions: ${img.naturalWidth}x${img.naturalHeight}`, 'info');
+            };
+            
+            img.onerror = (e) => {
+                const loadTime = Date.now() - startTime;
+                log('testResult', `❌ Image failed to load after ${loadTime}ms`, 'error');
+                log('testResult', `🔍 Error details: ${e.type}`, 'error');
+            };
+            
+            img.src = url;
+        }
+
+        function testCORS() {
+            clear('corsResult');
+            if (!currentTestUrl) {
+                log('corsResult', '⚠️ Test URL terlebih dahulu', 'warning');
+                return;
+            }
+            
+            log('corsResult', '🔍 Testing CORS policy...', 'info');
+            
+            // Test dengan fetch untuk melihat CORS headers
+            fetch(currentTestUrl, { method: 'HEAD', mode: 'cors' })
+                .then(response => {
+                    log('corsResult', `✅ CORS fetch successful (${response.status})`, 'success');
+                    log('corsResult', `🔍 Access-Control-Allow-Origin: ${response.headers.get('Access-Control-Allow-Origin') || 'Not set'}`, 'info');
+                })
+                .catch(error => {
+                    log('corsResult', `❌ CORS fetch failed: ${error.message}`, 'error');
+                    if (error.message.includes('CORS')) {
+                        log('corsResult', '🔍 CORS policy is blocking this image', 'error');
+                        log('corsResult', '💡 Solution: Remove crossOrigin attribute or use proxy', 'warning');
+                    }
+                });
+        }
+
+        function testMixedContent() {
+            clear('mixedContentResult');
+            if (!currentTestUrl) {
+                log('mixedContentResult', '⚠️ Test URL terlebih dahulu', 'warning');
+                return;
+            }
+            
+            log('mixedContentResult', '🔍 Testing mixed content policy...', 'info');
+            
+            const currentProtocol = window.location.protocol;
+            const imageProtocol = currentTestUrl.startsWith('https:') ? 'https:' : 'http:';
+            
+            log('mixedContentResult', `🔍 Current page: ${currentProtocol}`, 'info');
+            log('mixedContentResult', `🔍 Image URL: ${imageProtocol}`, 'info');
+            
+            if (currentProtocol === 'https:' && imageProtocol === 'http:') {
+                log('mixedContentResult', '❌ Mixed content detected!', 'error');
+                log('mixedContentResult', '🔍 HTTPS pages cannot load HTTP images', 'error');
+                log('mixedContentResult', '💡 Solution: Use HTTPS image URLs', 'warning');
+            } else {
+                log('mixedContentResult', '✅ No mixed content issues', 'success');
+            }
+        }
+
+        function testNetwork() {
+            clear('networkResult');
+            if (!currentTestUrl) {
+                log('networkResult', '⚠️ Test URL terlebih dahulu', 'warning');
+                return;
+            }
+            
+            log('networkResult', '🔍 Testing network connectivity...', 'info');
+            
+            const startTime = Date.now();
+            
+            fetch(currentTestUrl, { method: 'HEAD', mode: 'no-cors' })
+                .then(() => {
+                    const time = Date.now() - startTime;
+                    log('networkResult', `✅ Network request successful (${time}ms)`, 'success');
+                })
+                .catch(error => {
+                    const time = Date.now() - startTime;
+                    log('networkResult', `❌ Network request failed after ${time}ms`, 'error');
+                    log('networkResult', `🔍 Error: ${error.message}`, 'error');
+                    
+                    if (error.message.includes('Failed to fetch')) {
+                        log('networkResult', '🔍 Possible causes:', 'info');
+                        log('networkResult', '• Server is down or unreachable', 'info');
+                        log('networkResult', '• DNS resolution failed', 'info');
+                        log('networkResult', '• Firewall blocking request', 'info');
+                        log('networkResult', '• Invalid SSL certificate', 'info');
+                    }
+                });
+        }
+
+        function testBrowserPolicy() {
+            clear('browserResult');
+            log('browserResult', '🔍 Checking browser policies...', 'info');
+            
+            // Test Content Security Policy
+            const csp = document.querySelector('meta[http-equiv="Content-Security-Policy"]');
+            if (csp) {
+                log('browserResult', `🔍 CSP detected: ${csp.content}`, 'warning');
+                if (csp.content.includes('img-src')) {
+                    log('browserResult', '⚠️ CSP may be restricting image loading', 'warning');
+                }
+            } else {
+                log('browserResult', '✅ No CSP restrictions found', 'success');
+            }
+            
+            // Test if running in secure context
+            if (window.isSecureContext) {
+                log('browserResult', '🔒 Running in secure context (HTTPS)', 'success');
+            } else {
+                log('browserResult', '⚠️ Running in insecure context (HTTP)', 'warning');
+            }
+            
+            // Check for ad blockers or extensions
+            const testDiv = document.createElement('div');
+            testDiv.className = 'ads advertisement';
+            testDiv.style.height = '1px';
+            document.body.appendChild(testDiv);
+            
+            setTimeout(() => {
+                if (testDiv.offsetHeight === 0) {
+                    log('browserResult', '🚫 Ad blocker detected - may block some images', 'warning');
+                } else {
+                    log('browserResult', '✅ No ad blocker interference', 'success');
+                }
+                document.body.removeChild(testDiv);
+            }, 100);
+        }
+
+        function testImageFormat() {
+            clear('formatResult');
+            if (!currentTestUrl) {
+                log('formatResult', '⚠️ Test URL terlebih dahulu', 'warning');
+                return;
+            }
+            
+            log('formatResult', '🔍 Analyzing image format...', 'info');
+            
+            const url = new URL(currentTestUrl);
+            const path = url.pathname.toLowerCase();
+            
+            const supportedFormats = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg', '.bmp'];
+            const detectedFormat = supportedFormats.find(format => path.includes(format));
+            
+            if (detectedFormat) {
+                log('formatResult', `✅ Detected format: ${detectedFormat}`, 'success');
+            } else {
+                log('formatResult', '⚠️ No file extension detected in URL', 'warning');
+                log('formatResult', '🔍 Format will be determined by Content-Type header', 'info');
+            }
+            
+            // Test actual image loading to check format support
+            const img = new Image();
+            img.onload = () => {
+                log('formatResult', '✅ Format is supported by browser', 'success');
+            };
+            img.onerror = () => {
+                log('formatResult', '❌ Format not supported or image corrupted', 'error');
+            };
+            img.src = currentTestUrl;
+        }
+
+        function testReferrerPolicy() {
+            clear('referrerResult');
+            if (!currentTestUrl) {
+                log('referrerResult', '⚠️ Test URL terlebih dahulu', 'warning');
+                return;
+            }
+            
+            log('referrerResult', '🔍 Testing referrer policy impact...', 'info');
+            
+            const policies = [
+                'no-referrer',
+                'no-referrer-when-downgrade',
+                'origin',
+                'origin-when-cross-origin',
+                'same-origin',
+                'strict-origin',
+                'strict-origin-when-cross-origin',
+                'unsafe-url'
+            ];
+            
+            let testCount = 0;
+            let successCount = 0;
+            
+            policies.forEach(policy => {
+                const img = new Image();
+                img.referrerPolicy = policy;
+                
+                img.onload = () => {
+                    successCount++;
+                    log('referrerResult', `✅ ${policy}: Success`, 'success');
+                    checkComplete();
+                };
+                
+                img.onerror = () => {
+                    log('referrerResult', `❌ ${policy}: Failed`, 'error');
+                    checkComplete();
+                };
+                
+                function checkComplete() {
+                    testCount++;
+                    if (testCount === policies.length) {
+                        log('referrerResult', `📊 Summary: ${successCount}/${policies.length} policies successful`, 'info');
+                        if (successCount > 0) {
+                            log('referrerResult', '💡 Try using a working referrer policy', 'warning');
+                        }
+                    }
+                }
+                
+                img.src = currentTestUrl + '?policy=' + policy;
+            });
+        }
+
+        function testAllConfigurations() {
+            if (!currentTestUrl) {
+                alert('Test URL terlebih dahulu');
+                return;
+            }
+            
+            const avatars = ['avatar1', 'avatar2', 'avatar3', 'avatar4'];
+            
+            avatars.forEach((id, index) => {
+                const img = document.getElementById(id);
+                
+                img.onload = () => {
+                    console.log(`✅ ${id} loaded successfully`);
+                    img.style.border = '2px solid green';
+                };
+                
+                img.onerror = () => {
+                    console.log(`❌ ${id} failed to load`);
+                    img.style.border = '2px solid red';
+                    img.alt = 'Failed';
+                };
+                
+                img.src = currentTestUrl + '?config=' + index;
+            });
+        }
+
+        // Auto-run basic diagnostics
+        window.addEventListener('load', () => {
+            console.log('🔍 Avatar Diagnostic Tool loaded');
+            
+            // Check basic environment
+            console.log('Environment check:');
+            console.log('- Protocol:', window.location.protocol);
+            console.log('- User Agent:', navigator.userAgent);
+            console.log('- Secure Context:', window.isSecureContext);
+            console.log('- Online:', navigator.onLine);
+        });
+    </script>
+</body>
+</html>

@@ -7,5 +7,10 @@ class Config:
     JWT_SECRET_KEY = os.environ.get('JWT_SECRET_KEY') or 'super-secret-jwt-key'
     
     # Database configuration
-    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or 'sqlite:///ukmiverse.db'
+    # MySQL dengan XAMPP (default)
+    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or 'mysql+pymysql://root:@localhost/ukmiverse_db'
+    
+    # Fallback ke SQLite jika MySQL tidak tersedia
+    # SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or 'sqlite:///ukmiverse.db'
+    
     SQLALCHEMY_TRACK_MODIFICATIONS = False

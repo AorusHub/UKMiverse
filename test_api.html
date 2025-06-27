@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test API Connection</title>
+</head>
+<body>
+    <h1>Test UKMiverse API Connection</h1>
+    
+    <h2>1. Test All UKMs</h2>
+    <button onclick="testAllUKMs()">Fetch All UKMs</button>
+    <div id="all-ukms"></div>
+    
+    <h2>2. Test Random UKMs</h2>
+    <button onclick="testRandomUKMs()">Fetch Random UKMs</button>
+    <div id="random-ukms"></div>
+    
+    <h2>3. Test Categories</h2>
+    <button onclick="testCategories()">Fetch Categories</button>
+    <div id="categories"></div>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:5000/api';
+        
+        async function testAllUKMs() {
+            try {
+                console.log('Testing:', `${API_BASE_URL}/ukm/`);
+                const response = await fetch(`${API_BASE_URL}/ukm/`);
+                const data = await response.json();
+                
+                document.getElementById('all-ukms').innerHTML = 
+                    '<pre>' + JSON.stringify(data, null, 2) + '</pre>';
+                console.log('All UKMs:', data);
+            } catch (error) {
+                document.getElementById('all-ukms').innerHTML = 
+                    '<p style="color: red;">Error: ' + error.message + '</p>';
+                console.error('Error:', error);
+            }
+        }
+        
+        async function testRandomUKMs() {
+            try {
+                console.log('Testing:', `${API_BASE_URL}/ukm/random?limit=4`);
+                const response = await fetch(`${API_BASE_URL}/ukm/random?limit=4`);
+                const data = await response.json();
+                
+                document.getElementById('random-ukms').innerHTML = 
+                    '<pre>' + JSON.stringify(data, null, 2) + '</pre>';
+                console.log('Random UKMs:', data);
+            } catch (error) {
+                document.getElementById('random-ukms').innerHTML = 
+                    '<p style="color: red;">Error: ' + error.message + '</p>';
+                console.error('Error:', error);
+            }
+        }
+        
+        async function testCategories() {
+            try {
+                console.log('Testing:', `${API_BASE_URL}/ukm/categories`);
+                const response = await fetch(`${API_BASE_URL}/ukm/categories`);
+                const data = await response.json();
+                
+                document.getElementById('categories').innerHTML = 
+                    '<pre>' + JSON.stringify(data, null, 2) + '</pre>';
+                console.log('Categories:', data);
+            } catch (error) {
+                document.getElementById('categories').innerHTML = 
+                    '<p style="color: red;">Error: ' + error.message + '</p>';
+                console.error('Error:', error);
+            }
+        }
+        
+        // Auto test on load
+        window.onload = function() {
+            testAllUKMs();
+            testRandomUKMs();
+            testCategories();
+        };
+    </script>
+</body>
+</html>

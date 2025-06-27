@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Avatar Display Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .avatar-container {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin: 20px 0;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+        }
+        .avatar {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #9333ea;
+        }
+        .avatar-placeholder {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            background-color: #e5e7eb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid #9333ea;
+            color: #9333ea;
+            font-weight: bold;
+        }
+        .controls {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin: 10px 0;
+        }
+        button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        .btn-primary {
+            background-color: #9333ea;
+            color: white;
+        }
+        .btn-primary:hover {
+            background-color: #7c3aed;
+        }
+        .btn-danger {
+            background-color: #dc2626;
+            color: white;
+        }
+        .btn-danger:hover {
+            background-color: #b91c1c;
+        }
+        .btn-secondary {
+            background-color: #6b7280;
+            color: white;
+        }
+        .btn-secondary:hover {
+            background-color: #4b5563;
+        }
+        input[type="text"] {
+            flex: 1;
+            padding: 8px;
+            border: 1px solid #d1d5db;
+            border-radius: 5px;
+            margin-right: 10px;
+        }
+        input[type="file"] {
+            margin-right: 10px;
+        }
+        .status {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        .status.success {
+            background-color: #d1fae5;
+            color: #065f46;
+            border: 1px solid #34d399;
+        }
+        .status.error {
+            background-color: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #f87171;
+        }
+        .status.info {
+            background-color: #dbeafe;
+            color: #1e40af;
+            border: 1px solid #60a5fa;
+        }
+        .login-form {
+            background: #f9fafb;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 10px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #d1d5db;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🖼️ Avatar Display Test</h1>
+        <p>This page tests the avatar upload and display functionality of UKMiverse.</p>
+        
+        <!-- Login Section -->
+        <div class="login-form">
+            <h3>1. Login</h3>
+            <div class="form-group">
+                <label>Username:</label>
+                <input type="text" id="username" value="testuser" placeholder="Enter username">
+            </div>
+            <div class="form-group">
+                <label>Password:</label>
+                <input type="password" id="password" value="password123" placeholder="Enter password">
+            </div>
+            <button class="btn-primary" onclick="login()">Login</button>
+        </div>
+
+        <!-- Status Display -->
+        <div id="status"></div>
+
+        <!-- Avatar Display Section -->
+        <div class="avatar-container">
+            <div id="avatar-display">
+                <div class="avatar-placeholder">👤</div>
+            </div>
+            <div>
+                <h4>Current Avatar</h4>
+                <p id="avatar-info">Not logged in</p>
+            </div>
+        </div>
+
+        <!-- Avatar Upload Controls -->
+        <div id="upload-controls" style="display: none;">
+            <h3>2. Upload Avatar</h3>
+            
+            <div class="controls">
+                <input type="text" id="avatar-url" placeholder="Enter image URL" style="flex: 1;">
+                <button class="btn-primary" onclick="uploadAvatarUrl()">Upload URL</button>
+            </div>
+
+            <div class="controls">
+                <input type="file" id="avatar-file" accept="image/*">
+                <button class="btn-primary" onclick="uploadAvatarFile()">Upload File</button>
+            </div>
+
+            <div class="controls">
+                <button class="btn-danger" onclick="deleteAvatar()">Delete Avatar</button>
+                <button class="btn-secondary" onclick="refreshProfile()">Refresh Profile</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:5000/api';
+        let authToken = null;
+        let currentProfile = null;
+
+        function showStatus(message, type = 'info') {
+            const statusDiv = document.getElementById('status');
+            statusDiv.innerHTML = `<div class="status ${type}">${message}</div>`;
+            console.log(`[${type.toUpperCase()}] ${message}`);
+        }
+
+        function updateAvatarDisplay(profile) {
+            const avatarDisplay = document.getElementById('avatar-display');
+            const avatarInfo = document.getElementById('avatar-info');
+            
+            if (profile && profile.avatar_url) {
+                // Create a unique key for the image to force refresh
+                const imageKey = Date.now();
+                avatarDisplay.innerHTML = `
+                    <img 
+                        src="${profile.avatar_url}" 
+                        alt="Avatar" 
+                        class="avatar"
+                        key="avatar-${imageKey}"
+                        onload="console.log('Avatar loaded successfully')"
+                        onerror="console.error('Avatar failed to load'); this.style.display='none'; this.parentElement.innerHTML='<div class=\\'avatar-placeholder\\'>❌</div>';"
+                    >
+                `;
+                avatarInfo.textContent = `Avatar loaded (${profile.avatar_url.length > 50 ? 'Base64 image' : 'URL image'})`;
+            } else {
+                avatarDisplay.innerHTML = '<div class="avatar-placeholder">👤</div>';
+                avatarInfo.textContent = profile ? 'No avatar set' : 'Not logged in';
+            }
+        }
+
+        async function login() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            if (!username || !password) {
+                showStatus('Please enter username and password', 'error');
+                return;
+            }
+
+            try {
+                showStatus('Logging in...', 'info');
+                const response = await fetch(`${API_BASE_URL}/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    authToken = data.access_token;
+                    currentProfile = data.user;
+                    
+                    showStatus(`Login successful! Welcome ${data.user.username}`, 'success');
+                    updateAvatarDisplay(currentProfile);
+                    document.getElementById('upload-controls').style.display = 'block';
+                } else {
+                    const error = await response.json();
+                    showStatus(`Login failed: ${error.msg || 'Unknown error'}`, 'error');
+                }
+            } catch (e) {
+                showStatus(`Login error: ${e.message}`, 'error');
+            }
+        }
+
+        async function refreshProfile() {
+            if (!authToken) {
+                showStatus('Please login first', 'error');
+                return;
+            }
+
+            try {
+                showStatus('Refreshing profile...', 'info');
+                const response = await fetch(`${API_BASE_URL}/profile/`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+
+                if (response.ok) {
+                    currentProfile = await response.json();
+                    showStatus('Profile refreshed successfully', 'success');
+                    updateAvatarDisplay(currentProfile);
+                } else {
+                    showStatus('Failed to refresh profile', 'error');
+                }
+            } catch (e) {
+                showStatus(`Refresh error: ${e.message}`, 'error');
+            }
+        }
+
+        async function uploadAvatarUrl() {
+            const url = document.getElementById('avatar-url').value;
+            if (!url) {
+                showStatus('Please enter an image URL', 'error');
+                return;
+            }
+
+            await updateAvatar(url);
+        }
+
+        async function uploadAvatarFile() {
+            const fileInput = document.getElementById('avatar-file');
+            const file = fileInput.files[0];
+            
+            if (!file) {
+                showStatus('Please select a file', 'error');
+                return;
+            }
+
+            try {
+                showStatus('Converting file to base64...', 'info');
+                const base64 = await new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onload = (e) => resolve(e.target.result);
+                    reader.onerror = reject;
+                    reader.readAsDataURL(file);
+                });
+
+                await updateAvatar(base64);
+            } catch (e) {
+                showStatus(`File conversion error: ${e.message}`, 'error');
+            }
+        }
+
+        async function updateAvatar(avatarUrl) {
+            if (!authToken) {
+                showStatus('Please login first', 'error');
+                return;
+            }
+
+            try {
+                showStatus('Uploading avatar...', 'info');
+                const response = await fetch(`${API_BASE_URL}/profile/`, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ avatar_url: avatarUrl })
+                });
+
+                if (response.ok) {
+                    currentProfile = await response.json();
+                    showStatus('Avatar uploaded successfully! Check if it displays immediately.', 'success');
+                    updateAvatarDisplay(currentProfile);
+                    
+                    // Clear form
+                    document.getElementById('avatar-url').value = '';
+                    document.getElementById('avatar-file').value = '';
+                } else {
+                    const error = await response.json();
+                    showStatus(`Avatar upload failed: ${error.message || 'Unknown error'}`, 'error');
+                }
+            } catch (e) {
+                showStatus(`Upload error: ${e.message}`, 'error');
+            }
+        }
+
+        async function deleteAvatar() {
+            if (!authToken) {
+                showStatus('Please login first', 'error');
+                return;
+            }
+
+            if (!currentProfile?.avatar_url) {
+                showStatus('No avatar to delete', 'error');
+                return;
+            }
+
+            try {
+                showStatus('Deleting avatar...', 'info');
+                const response = await fetch(`${API_BASE_URL}/profile/`, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ avatar_url: null })
+                });
+
+                if (response.ok) {
+                    currentProfile = await response.json();
+                    showStatus('Avatar deleted successfully! Should show default icon now.', 'success');
+                    updateAvatarDisplay(currentProfile);
+                } else {
+                    const error = await response.json();
+                    showStatus(`Avatar deletion failed: ${error.message || 'Unknown error'}`, 'error');
+                }
+            } catch (e) {
+                showStatus(`Delete error: ${e.message}`, 'error');
+            }
+        }
+
+        // Test URLs for quick testing
+        function loadTestUrls() {
+            const urlInput = document.getElementById('avatar-url');
+            urlInput.placeholder = 'https://via.placeholder.com/150/0000FF/808080?Text=Test';
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            showStatus('Avatar Display Test loaded. Please login to begin testing.', 'info');
+            loadTestUrls();
+        });
+    </script>
+</body>
+</html>
