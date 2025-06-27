@@ -11,7 +11,11 @@ const AdminPanel = () => {
   const { user } = useContext(AuthContext);
   const [activeTab, setActiveTab] = useState('ukms');
   const [ukms, setUkms] = useState([]);
-  const [categories, setCategories] = useState([]);
+  const [categories, setCategories] = useState([
+    { id: 1, name: 'Unit Kegiatan Olahraga' },
+    { id: 2, name: 'Unit Kegiatan Kesenian' },
+    { id: 3, name: 'Unit Kegiatan Khusus' }
+  ]);
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -31,218 +35,60 @@ const AdminPanel = () => {
 
   const loadData = async () => {
     setLoading(true);
-    console.log('🔄 AdminPanel - Starting to load data...');
-    console.log('🔍 AdminPanel - API Base URL:', API_BASE_URL);
     
-    // Check if user is logged in
     const token = localStorage.getItem('token');
     if (!token) {
-      console.error('❌ AdminPanel - No token found, user might not be logged in');
       setLoading(false);
       return;
     }
     
-    let dataLoaded = false;
-    
     try {
-      // Test backend connection first
-      console.log('� AdminPanel - Testing backend connection...');
-      const testResponse = await fetch(`${API_BASE_URL}/ukm/`, { 
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json'
+      // Fetch UKMs
+      const ukmsResponse = await fetch(`${API_BASE_URL}/ukm/`);
+      if (ukmsResponse.ok) {
+        const ukmsData = await ukmsResponse.json();
+        console.log('📊 Raw UKMs data from backend:', ukmsData);
+        // Log first UKM to see its structure
+        if (ukmsData.length > 0) {
+          console.log('📊 First UKM structure:', ukmsData[0]);
+          console.log('📊 All fields in first UKM:', Object.keys(ukmsData[0]));
         }
-      });
-      
-      console.log('� AdminPanel - Backend test response:', testResponse.status, testResponse.statusText);
-      
-      if (!testResponse.ok) {
-        throw new Error(`Backend connection failed: ${testResponse.status} ${testResponse.statusText}`);
-      }
-      
-      // Fetch UKMs from database
-      console.log('📡 AdminPanel - Fetching UKMs from database...');
-      const ukmsData = await testResponse.json();
-      console.log('✅ AdminPanel - UKMs loaded from database:', ukmsData);
-      console.log('📊 AdminPanel - UKMs count from database:', ukmsData.length);
-      
-      // Detailed UKM data analysis
-      if (Array.isArray(ukmsData)) {
-        console.log('🔍 AdminPanel - Analyzing UKM data structure:');
-        ukmsData.forEach((ukm, index) => {
-          console.log(`  UKM ${index + 1}:`, {
-            id: ukm.id,
-            nama: ukm.nama,
-            name: ukm.name,
-            category_id: ukm.category_id,
-            category_id_type: typeof ukm.category_id,
-            has_category_id: 'category_id' in ukm,
-            all_fields: Object.keys(ukm)
-          });
-        });
-      }
-      
-      if (Array.isArray(ukmsData) && ukmsData.length > 0) {
         setUkms(ukmsData);
-        dataLoaded = true;
-        console.log('✅ AdminPanel - UKMs set successfully');
-      } else {
-        console.log('⚠️ AdminPanel - UKMs array is empty or invalid');
       }
 
-      // Fetch categories from database
-      console.log('📡 AdminPanel - Fetching Categories from database...');
+      // Fetch categories  
       const categoriesResponse = await fetch(`${API_BASE_URL}/ukm/categories`);
-      console.log('📡 AdminPanel - Categories response status:', categoriesResponse.status);
-      
       if (categoriesResponse.ok) {
         const categoriesData = await categoriesResponse.json();
-        console.log('✅ AdminPanel - Categories loaded from database:', categoriesData);
-        console.log('📊 AdminPanel - Categories count from database:', categoriesData.length);
-        
-        if (Array.isArray(categoriesData) && categoriesData.length > 0) {
+        if (categoriesData.length > 0) {
           setCategories(categoriesData);
-          console.log('✅ AdminPanel - Categories set successfully');
-          console.log('📋 AdminPanel - Categories data:', categoriesData);
-        } else {
-          console.log('⚠️ AdminPanel - Categories array is empty, using fallback categories');
-          setCategories([
-            { id: 1, name: 'Unit Kegiatan Olahraga' },
-            { id: 2, name: 'Unit Kegiatan Kesenian' },
-            { id: 3, name: 'Unit Kegiatan Khusus' }
-          ]);
         }
-      } else {
-        console.error('❌ AdminPanel - Categories fetch failed:', categoriesResponse.status, categoriesResponse.statusText);
-        console.log('🔄 AdminPanel - Using fallback categories due to fetch failure');
-        setCategories([
-          { id: 1, name: 'Unit Kegiatan Olahraga' },
-          { id: 2, name: 'Unit Kegiatan Kesenian' },
-          { id: 3, name: 'Unit Kegiatan Khusus' }
-        ]);
       }
 
-      // Fetch users from database
-      console.log('📡 AdminPanel - Fetching Users from database...');
-      try {
-        const token = localStorage.getItem('token');
-        if (token) {
-          const usersResponse = await fetch(`${API_BASE_URL}/auth/users`, {
-            method: 'GET',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${token}`
-            }
-          });
-          console.log('📡 AdminPanel - Users response status:', usersResponse.status);
-          
-          if (usersResponse.ok) {
-            const usersData = await usersResponse.json();
-            console.log('✅ AdminPanel - Users loaded from database:', usersData);
-            console.log('� AdminPanel - Users count from database:', usersData.length);
-            
-            if (Array.isArray(usersData) && usersData.length > 0) {
-              setUsers(usersData);
-              console.log('✅ AdminPanel - Users set successfully from database');
-            } else {
-              console.log('⚠️ AdminPanel - Users array from database is empty, using fallback');
-              setUsers([
-                { id: 1, username: 'admin (no DB users)', email: 'admin@unhas.ac.id', role: { name: 'admin' } },
-                { id: 2, username: 'user1 (no DB users)', email: 'user1@unhas.ac.id', role: { name: 'user' } }
-              ]);
-            }
-          } else if (usersResponse.status === 401) {
-            console.error('❌ AdminPanel - Users fetch failed: Unauthorized (401) - Token might be invalid or expired');
-            setUsers([
-              { id: 1, username: 'admin (token expired)', email: 'admin@unhas.ac.id', role: { name: 'admin' } },
-              { id: 2, username: 'user1 (token expired)', email: 'user1@unhas.ac.id', role: { name: 'user' } }
-            ]);
-          } else {
-            console.error('❌ AdminPanel - Users fetch failed:', usersResponse.status, usersResponse.statusText);
-            setUsers([
-              { id: 1, username: 'admin (API failed)', email: 'admin@unhas.ac.id', role: { name: 'admin' } },
-              { id: 2, username: 'user1 (API failed)', email: 'user1@unhas.ac.id', role: { name: 'user' } }
-            ]);
-          }
-        } else {
-          console.log('⚠️ AdminPanel - No auth token found, using fallback users');
-          setUsers([
-            { id: 1, username: 'admin (no token)', email: 'admin@unhas.ac.id', role: { name: 'admin' } },
-            { id: 2, username: 'user1 (no token)', email: 'user1@unhas.ac.id', role: { name: 'user' } }
-          ]);
-        }
-      } catch (error) {
-        console.error('❌ AdminPanel - Error fetching users:', error);
-        setUsers([
-          { id: 1, username: 'admin (error)', email: 'admin@unhas.ac.id', role: { name: 'admin' } },
-          { id: 2, username: 'user1 (error)', email: 'user1@unhas.ac.id', role: { name: 'user' } }
-        ]);
-      }
-      
-      if (dataLoaded) {
-        console.log('🎉 AdminPanel - Data loaded successfully from database!');
+      // Fetch users
+      const usersResponse = await fetch(`${API_BASE_URL}/auth/users`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (usersResponse.ok) {
+        const usersData = await usersResponse.json();
+        setUsers(usersData);
       }
       
     } catch (error) {
-      console.error('❌ AdminPanel - Error loading data from backend:', error);
-      console.log('🔄 AdminPanel - Backend connection failed, using fallback data...');
-      
-      // Only use fallback if we couldn't connect to backend
-      setUkms([
-        {
-          id: 1,
-          nama: 'UKM Badminton (Fallback)',
-          deskripsi: 'Unit Kegiatan Mahasiswa Badminton untuk mengembangkan kemampuan olahraga dan sportivitas.',
-          category_id: 1,
-          prestasi: 'Juara 1 Olimpiade Badminton 2023',
-          kegiatan_rutin: 'Latihan setiap Selasa dan Kamis'
-        },
-        {
-          id: 2,
-          nama: 'UKM Musik (Fallback)',
-          deskripsi: 'Unit Kegiatan Mahasiswa Musik untuk mengembangkan bakat dan kreativitas di bidang musik.',
-          category_id: 2,
-          prestasi: 'Best Performance Festival Musik 2023',
-          kegiatan_rutin: 'Latihan band setiap Rabu'
-        },
-        {
-          id: 3,
-          nama: 'UKM Bahasa (Fallback)',
-          deskripsi: 'Unit Kegiatan Mahasiswa Bahasa untuk mengembangkan kemampuan komunikasi dan linguistik.',
-          category_id: 3,
-          prestasi: 'Juara 2 Debat Bahasa Indonesia',
-          kegiatan_rutin: 'Diskusi sastra setiap Jumat'
-        },
-        {
-          id: 4,
-          nama: 'UKM Fotografi (Fallback)',
-          deskripsi: 'Unit Kegiatan Mahasiswa Fotografi untuk mengasah kemampuan dan teknik fotografi.',
-          category_id: 3,
-          prestasi: 'Pameran foto terbaik 2023',
-          kegiatan_rutin: 'Workshop foto setiap Sabtu'
-        },
-        {
-          id: 5,
-          nama: 'UKM Futsal (Fallback)',
-          deskripsi: 'Unit Kegiatan Mahasiswa Futsal untuk mengembangkan kemampuan bermain futsal.',
-          category_id: 1,
-          prestasi: 'Juara Liga Futsal Universitas 2023',
-          kegiatan_rutin: 'Latihan setiap Senin dan Kamis'
-        }
-      ]);
-      
+      // Use fallback data if backend is not available
       setCategories([
         { id: 1, name: 'Unit Kegiatan Olahraga' },
         { id: 2, name: 'Unit Kegiatan Kesenian' },
         { id: 3, name: 'Unit Kegiatan Khusus' }
       ]);
       
-      setUsers([
-        { id: 1, username: 'admin (backend offline)', email: 'admin@unhas.ac.id', role: { name: 'admin' } },
-        { id: 2, username: 'user1 (backend offline)', email: 'user1@unhas.ac.id', role: { name: 'user' } }
+      setUkms([
+        { id: 1, nama: 'UKM Badminton', category_id: 1, deskripsi: 'Olahraga badminton', prestasi: 'Juara 1' },
+        { id: 2, nama: 'UKM Musik', category_id: 2, deskripsi: 'Musik kampus', prestasi: 'Festival' },
+        { id: 3, nama: 'UKM Bahasa', category_id: 3, deskripsi: 'Bahasa dan sastra', prestasi: 'Debat' }
       ]);
       
-      console.log('⚠️ AdminPanel - Using fallback data due to backend connection failure');
+      setUsers([{ id: 1, username: 'admin', email: 'admin@unhas.ac.id', role: { name: 'admin' } }]);
     } finally {
       setLoading(false);
     }
@@ -514,34 +360,35 @@ const AdminPanel = () => {
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
                 {ukms.map((ukm) => {
-                  // Find category name from categories array with type safety
-                  let categoryName = 'Tidak ada kategori';
+                  // Simple category mapping with intelligent defaults
+                  let categoryName = 'Unit Kegiatan Khusus'; // Default fallback
                   
-                  // Debug logging untuk troubleshoot
-                  console.log(`🔍 UKM: ${ukm.nama || ukm.name}`);
-                  console.log(`  original category_id: ${ukm.category_id} (type: ${typeof ukm.category_id})`);
-                  console.log(`  categories available:`, categories.map(c => `${c.id}(${typeof c.id}): ${c.name}`));
-                  
-                  if (ukm.category_id !== undefined && ukm.category_id !== null) {
-                    const ukmCategoryId = parseInt(ukm.category_id);
-                    if (!isNaN(ukmCategoryId)) {
-                      const category = categories.find(cat => parseInt(cat.id) === ukmCategoryId);
-                      if (category) {
-                        categoryName = category.name;
-                        console.log(`  ✅ matched category: ${category.name}`);
-                      } else {
-                        categoryName = `Kategori tidak ditemukan (ID: ${ukmCategoryId})`;
-                        console.log(`  ❌ no matching category for ID: ${ukmCategoryId}`);
+                  // Check if category_id exists and is valid
+                  if (ukm.category_id !== null && ukm.category_id !== undefined) {
+                    const id = Number(ukm.category_id);
+                    if (!isNaN(id)) {
+                      switch(id) {
+                        case 1: categoryName = 'Unit Kegiatan Olahraga'; break;
+                        case 2: categoryName = 'Unit Kegiatan Kesenian'; break;
+                        case 3: categoryName = 'Unit Kegiatan Khusus'; break;
+                        default: categoryName = `Kategori ${id}`;
                       }
-                    } else {
-                      categoryName = `Invalid category ID: ${ukm.category_id}`;
-                      console.log(`  ❌ invalid category_id: ${ukm.category_id}`);
                     }
                   } else {
-                    console.log(`  ❌ category_id is undefined or null`);
+                    // Smart categorization based on UKM name if no category_id
+                    const namaLower = ukm.nama?.toLowerCase() || '';
+                    if (namaLower.includes('basket') || namaLower.includes('futsal') || namaLower.includes('badminton') || 
+                        namaLower.includes('voli') || namaLower.includes('sepak') || namaLower.includes('renang') ||
+                        namaLower.includes('tenis') || namaLower.includes('atletik') || namaLower.includes('olahraga')) {
+                      categoryName = 'Unit Kegiatan Olahraga';
+                    } else if (namaLower.includes('musik') || namaLower.includes('seni') || namaLower.includes('tari') || 
+                              namaLower.includes('teater') || namaLower.includes('paduan suara') || namaLower.includes('band')) {
+                      categoryName = 'Unit Kegiatan Kesenian';
+                    } else if (namaLower.includes('catur') || namaLower.includes('debat') || namaLower.includes('bahasa') ||
+                              namaLower.includes('komputer') || namaLower.includes('teknologi') || namaLower.includes('sains')) {
+                      categoryName = 'Unit Kegiatan Khusus';
+                    }
                   }
-                  
-                  console.log(`  result: ${categoryName}`);
                   
                   return (
                     <tr key={ukm.id} className="hover:bg-gray-50">

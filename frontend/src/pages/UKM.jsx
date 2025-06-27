@@ -2,8 +2,7 @@ import React, { useState, useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../contexts/AuthContext';
 import RoleBasedComponent from '../components/RoleBasedComponent';
-import EditUKMModal from '../components/EditUKMModal';
-import { Edit2, Trash2 } from 'lucide-react';
+import { Trash2 } from 'lucide-react';
 
 const UKM = () => {
   const { isAuthenticated, user } = useContext(AuthContext);
@@ -14,9 +13,6 @@ const UKM = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [activeFilters, setActiveFilters] = useState([]); // Array untuk filter kategori yang aktif
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [selectedUKM, setSelectedUKM] = useState(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Base URL untuk API backend
   const API_BASE_URL = 'http://localhost:5000/api';
@@ -42,46 +38,6 @@ const UKM = () => {
   };
 
 
-
-  // Function untuk mengedit UKM
-  const handleEditUKM = async (ukmId, formData) => {
-    setIsSubmitting(true);
-    
-    try {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        throw new Error('Token tidak ditemukan');
-      }
-
-      const response = await fetch(`${API_BASE_URL}/ukm/${ukmId}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify(formData)
-      });
-
-      if (response.ok) {
-        const updatedUkm = await response.json();
-        console.log('✅ UKM berhasil diupdate:', updatedUkm);
-        
-        // Refresh data UKM
-        await loadData();
-        
-        alert('UKM berhasil diupdate!');
-      } else {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Gagal mengupdate UKM');
-      }
-    } catch (error) {
-      console.error('❌ Error updating UKM:', error);
-      alert(`Gagal mengupdate UKM: ${error.message}`);
-      throw error;
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
 
   // Function untuk menghapus UKM
   const handleDeleteUKM = async (ukmId, ukmName) => {
@@ -302,18 +258,6 @@ const UKM = () => {
     }
   };
 
-  // Function untuk membuka edit modal
-  const openEditModal = (ukm) => {
-    setSelectedUKM(ukm);
-    setIsEditModalOpen(true);
-  };
-
-  // Function untuk menutup edit modal
-  const closeEditModal = () => {
-    setSelectedUKM(null);
-    setIsEditModalOpen(false);
-  };
-
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50">
@@ -470,16 +414,9 @@ const UKM = () => {
                       console.log(`🃏 RENDERING UKM Card:`, ukm);
                       return (
                         <div key={ukm.id} className="card group relative">
-                    {/* Admin Edit and Delete Buttons - Only visible to role_id = 1 */}
+                    {/* Admin Delete Button - Only visible to role_id = 1 */}
                     <RoleBasedComponent allowedRoles={[1]}>
                       <div className="absolute top-2 right-2 z-10 flex gap-1">
-                        <button 
-                          onClick={() => openEditModal(ukm)}
-                          className="p-2 bg-white bg-opacity-90 hover:bg-opacity-100 rounded-full shadow-md transition-all"
-                          title="Edit UKM"
-                        >
-                          <Edit2 className="w-4 h-4 text-gray-600 hover:text-blue-600" />
-                        </button>
                         <button 
                           onClick={() => handleDeleteUKM(ukm.id, ukm.nama)}
                           className="p-2 bg-white bg-opacity-90 hover:bg-opacity-100 rounded-full shadow-md transition-all"
@@ -524,14 +461,6 @@ const UKM = () => {
                           >
                             LIHAT DETAIL
                           </button>
-                          <RoleBasedComponent allowedRoles={[1]}>
-                            <button 
-                              onClick={() => openEditModal(ukm)}
-                              className="btn-secondary w-full text-sm"
-                            >
-                              EDIT UKM
-                            </button>
-                          </RoleBasedComponent>
                         </div>
                       </RoleBasedComponent>
                     </div>
@@ -581,15 +510,6 @@ const UKM = () => {
           )}
         </div>
       </section>
-
-      {/* Edit UKM Modal */}
-      <EditUKMModal
-        isOpen={isEditModalOpen}
-        onClose={closeEditModal}
-        categories={categories}
-        ukm={selectedUKM}
-        onSubmit={handleEditUKM}
-      />
     </div>
   );
 };

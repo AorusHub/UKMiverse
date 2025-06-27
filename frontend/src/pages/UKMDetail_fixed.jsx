@@ -151,7 +151,7 @@ const UKMDetail = () => {
 
       if (response.ok) {
         alert('UKM berhasil dihapus!');
-        navigate('/ukm'); // Redirect ke halaman daftar UKM
+        navigate('/daftar-ukm'); // Redirect ke halaman daftar UKM
       } else {
         const errorData = await response.json();
         throw new Error(errorData.message || 'Gagal menghapus UKM');
@@ -164,8 +164,10 @@ const UKMDetail = () => {
 
   // Load categories saat komponen mount
   useEffect(() => {
-    fetchCategories();
-  }, []);
+    if (user) {
+      fetchCategories();
+    }
+  }, [user]);
 
   // Helper functions untuk generate placeholder links yang berbeda tiap UKM
   const getInstagramHandle = (ukmName) => {
@@ -460,37 +462,14 @@ const UKMDetail = () => {
                     Yuk, jadi bagian dari komunitas pecinta strategi dan logika!
                   </p>
                   
-                  {/* Join Button or Login Prompt */}
-                  {user ? (
-                    <button
-                      onClick={handleJoinUKM}
-                      disabled={joining}
-                      className="bg-white text-purple-600 px-6 py-3 rounded-lg font-bold hover:bg-purple-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      {joining ? 'Memproses...' : 'Gabung Sekarang'}
-                    </button>
-                  ) : (
-                    <div className="space-y-3">
-                      <p className="text-purple-200 text-sm">
-                        Silakan login untuk bergabung dengan UKM
-                      </p>
-                      <div className="flex gap-2">
-                        <button
-                          onClick={() => setShowLoginModal(true)}
-                          className="flex items-center gap-2 bg-white text-purple-600 px-4 py-2 rounded-lg font-medium hover:bg-purple-50 transition-colors"
-                        >
-                          <LogIn className="w-4 h-4" />
-                          Login
-                        </button>
-                        <button
-                          onClick={() => setShowRegisterModal(true)}
-                          className="bg-purple-500/50 text-white px-4 py-2 rounded-lg font-medium hover:bg-purple-500/70 transition-colors border border-purple-400"
-                        >
-                          Daftar
-                        </button>
-                      </div>
-                    </div>
-                  )}
+                  {/* Join Button - User is guaranteed to be logged in here */}
+                  <button
+                    onClick={handleJoinUKM}
+                    disabled={joining}
+                    className="bg-white text-purple-600 px-6 py-3 rounded-lg font-bold hover:bg-purple-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {joining ? 'Memproses...' : 'Gabung Sekarang'}
+                  </button>
                 </div>
                 
                 {/* Right Side - Social Links */}
@@ -529,7 +508,7 @@ const UKMDetail = () => {
           onSubmit={handleEditUKM}
         />
 
-        {/* Login Modal */}
+        {/* Login Modal - Only shown if user somehow gets here without being logged in */}
         {showLoginModal && (
           <Login
             onClose={handleLoginModalClose}
@@ -540,7 +519,7 @@ const UKMDetail = () => {
           />
         )}
 
-        {/* Register Modal */}
+        {/* Register Modal - Only shown if user somehow gets here without being logged in */}
         {showRegisterModal && (
           <Register
             onClose={handleRegisterModalClose}
