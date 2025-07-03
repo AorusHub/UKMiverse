@@ -1,4 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import olahragaIcon from '../assets/sport.png';
+import seniIcon from '../assets/seni.png';
+import khususIcon from '../assets/khusus.png';
 
 const Home = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -29,17 +32,17 @@ const Home = () => {
   const ukmCategories = [
     {
       title: "Unit Kegiatan Olahraga",
-      icon: "🏃‍♂️",
+      icon: olahragaIcon,
       description: "Wadah pengembangan bakat olahraga"
     },
     {
       title: "Unit Kegiatan Kesenian", 
-      icon: "🎭",
+      icon: seniIcon,
       description: "Tempat berkreasi seni dan budaya"
     },
     {
       title: "Unit Kegiatan Khusus",
-      icon: "⭐",
+      icon: khususIcon,
       description: "Kegiatan khusus dan penalaran"
     }
   ];
@@ -199,7 +202,9 @@ const Home = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
             {ukmCategories.map((category, index) => (
               <div key={index} className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 p-8 text-center border border-gray-100">
-                <div className="text-6xl mb-6">{category.icon}</div>
+                <div className="text-6xl mb-6 flex justify-center">
+                  <img src={category.icon} alt={category.title} className="w-16 h-16 object-contain" />
+                </div>
                 <h3 className="text-xl font-bold text-gray-800 mb-4">{category.title}</h3>
                 <p className="text-gray-600 leading-relaxed">{category.description}</p>
               </div>
