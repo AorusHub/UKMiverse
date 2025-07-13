@@ -15,8 +15,11 @@ cd ukmiverse_project
 cd backend
 
 #Lalu Hapus file .venv
+
 rmdir /s /q venv
+
 atau
+
 Remove-Item -Recurse -Force .\venv
 
 #Lalu install lagi venv dengan :
