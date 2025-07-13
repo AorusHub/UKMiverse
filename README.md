@@ -14,7 +14,7 @@ cd ukmiverse_project
 # 2. Setup Backend dengan Virtual Environment
 cd backend
 
-#Lalu Hapus file .venv
+#Lalu Hapus file .venv :
 
 rmdir /s /q venv
 
@@ -23,6 +23,7 @@ atau
 Remove-Item -Recurse -Force .\venv
 
 #Lalu install lagi venv dengan :
+
 python -m venv venv
 
 # Aktivasi venv (Windows)
